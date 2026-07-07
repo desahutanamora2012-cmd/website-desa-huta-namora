@@ -33370,7 +33370,7 @@ function getDb() {
 // api/queries/users.ts
 async function findUserByUnionId(unionId) {
   const rows = await getDb().select().from(users).where(eq(users.unionId, unionId)).limit(1);
-  return rows.at(0);
+  return rows[0];
 }
 async function upsertUser(data) {
   const values = { ...data };

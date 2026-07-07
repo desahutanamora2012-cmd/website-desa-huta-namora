@@ -1369,13 +1369,15 @@ const pariwisataRouter = createRouter({
             })
             .where(eq(pariwisataReviews.id, existing[0].id));
         } else {
-          await db().insert(pariwisataReviews).values({
-            pariwisataId: input.id,
-            userId: user?.id,
-            unionId,
-            rating: input.rating,
-            review: input.review,
-          });
+          await db()
+            .insert(pariwisataReviews)
+            .values({
+              pariwisataId: input.id,
+              userId: user?.id,
+              unionId,
+              rating: input.rating as any,
+              review: input.review,
+            });
         }
 
         // recompute pariwisata rating (average)
