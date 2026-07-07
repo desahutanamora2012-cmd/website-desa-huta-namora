@@ -33347,7 +33347,8 @@ var env = {
   adminPassword: process.env.ADMIN_PASSWORD ?? "admin",
   isProduction: process.env.NODE_ENV === "production",
   databaseUrl: required("DATABASE_URL"),
-  ownerUnionId: process.env.OWNER_UNION_ID ?? ""
+  ownerUnionId: process.env.OWNER_UNION_ID ?? "",
+  kimiOpenUrl: process.env.KIMI_OPEN_URL ?? ""
 };
 
 // db/relations.ts

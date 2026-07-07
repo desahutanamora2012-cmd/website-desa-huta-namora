@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { eq, desc, asc, sql, like, and } from "drizzle-orm";
-import { getDb } from "./queries/connection";
+import { getDb } from "./queries/connection.js";
 import {
   profilDesa,
   statistikDesa,
@@ -24,9 +24,8 @@ import {
   pendidikan,
   kesehatan,
   ekonomi,
-} from "@db/schema";
-import { createRouter, publicQuery, adminQuery, authedQuery } from "./middleware";
-import { sql } from "drizzle-orm";
+} from "../db/schema.js";
+import { createRouter, publicQuery, adminQuery, authedQuery } from "./middleware.js";
 
 const db = () => getDb();
 
@@ -1381,7 +1380,7 @@ const pariwisataRouter = createRouter({
 
         // recompute pariwisata rating (average)
         const rows = await db()
-          .select({ avgRating: sql<number>`AVG(${pariwisataReviews.rating})` })
+          .select({ avgRating: sql<string>`AVG(${pariwisataReviews.rating})` })
           .from(pariwisataReviews)
           .where(eq(pariwisataReviews.pariwisataId, input.id));
         const avg = rows[0]?.avgRating ?? null;

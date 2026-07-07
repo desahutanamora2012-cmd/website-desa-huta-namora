@@ -1,12 +1,12 @@
 import type { Context } from "hono";
 import { setCookie } from "hono/cookie";
 import * as cookie from "cookie";
-import { env } from "../lib/env";
-import { getSessionCookieOptions } from "../lib/cookies";
-import { Session } from "@contracts/constants";
-import { Errors } from "@contracts/errors";
-import { signSessionToken, verifySessionToken } from "./session";
-import { findUserByUnionId, upsertUser } from "../queries/users";
+import { env } from "../lib/env.js";
+import { getSessionCookieOptions } from "../lib/cookies.js";
+import { Session } from "../../contracts/constants.js";
+import { Errors } from "../../contracts/errors.js";
+import { signSessionToken, verifySessionToken } from "./session.js";
+import { findUserByUnionId, upsertUser } from "../queries/users.js";
 
 export async function authenticateRequest(headers: Headers) {
   const cookies = cookie.parse(headers.get("cookie") || "");
