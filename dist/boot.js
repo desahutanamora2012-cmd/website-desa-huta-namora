@@ -25433,14 +25433,16 @@ var ErrorMessages = {
 
 // api/lib/cookies.ts
 function isLocalhost(headers) {
-  const host = headers.get("host") || "";
-  return host.startsWith("localhost:") || host.startsWith("127.0.0.1:");
+  const host = headers.get("x-forwarded-host") || headers.get("host") || "";
+  return host.startsWith("localhost:") || host.startsWith("127.0.0.1:") || host === "localhost" || host === "127.0.0.1";
 }
 function getSessionCookieOptions(headers) {
   const localhost = isLocalhost(headers);
   return {
     httpOnly: true,
     path: "/",
+    // Untuk kebutuhan cross-site (LocalTo/proxy), gunakan SameSite=None.
+    // Untuk localhost gunakan Lax agar tetap nyaman saat development.
     sameSite: localhost ? "Lax" : "None",
     secure: !localhost
   };
@@ -28488,12 +28490,17 @@ __export(schema_exports, {
   dokumen: () => dokumen,
   dusun: () => dusun,
   dusunSotk: () => dusunSotk,
+  ekonomi: () => ekonomi,
   galeri: () => galeri,
   jabatanDesa: () => jabatanDesa,
   jabatanSotk: () => jabatanSotk,
+  kesehatan: () => kesehatan,
   komoditas: () => komoditas,
   lembaga: () => lembaga,
   panduan: () => panduan,
+  pariwisata: () => pariwisata,
+  pariwisataReviews: () => pariwisataReviews,
+  pendidikan: () => pendidikan,
   pengaduan: () => pengaduan,
   profilDesa: () => profilDesa,
   runningText: () => runningText,
@@ -32864,6 +32871,129 @@ var dusunSotk = mysqlTable("dusun_sotk", {
   // Deskripsi dusun
   urutan: int("urutan").default(0),
   // Sort order
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().notNull().$onUpdate(() => /* @__PURE__ */ new Date())
+});
+var pariwisata = mysqlTable("pariwisata", {
+  id: serial("id").primaryKey(),
+  namaPenginapan: varchar("nama_penginapan", { length: 255 }).notNull(),
+  alamat: text("alamat").notNull(),
+  latitude: decimal("latitude", { precision: 10, scale: 8 }),
+  longitude: decimal("longitude", { precision: 11, scale: 8 }),
+  deskripsi: text("deskripsi"),
+  // Multiple photos stored as JSON array of URLs
+  fotoPenginapan: json("foto_penginapan").$type().default([]),
+  kontakWhatsapp: varchar("kontak_whatsapp", { length: 20 }),
+  hargaMin: decimal("harga_min", { precision: 12, scale: 2 }),
+  hargaMax: decimal("harga_max", { precision: 12, scale: 2 }),
+  satuanHarga: varchar("satuan_harga", { length: 50 }).default("per malam"),
+  fasilitas: json("fasilitas").$type().default([]),
+  rating: decimal("rating", { precision: 3, scale: 2 }),
+  urutan: int("urutan").default(0),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().notNull().$onUpdate(() => /* @__PURE__ */ new Date())
+});
+var pariwisataReviews = mysqlTable("pariwisata_reviews", {
+  id: serial("id").primaryKey(),
+  pariwisataId: int("pariwisata_id").notNull(),
+  userId: int("user_id"),
+  unionId: varchar("union_id", { length: 255 }).notNull(),
+  rating: decimal("rating", { precision: 3, scale: 2 }).notNull(),
+  review: text("review").notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().notNull().$onUpdate(() => /* @__PURE__ */ new Date())
+});
+var pendidikan = mysqlTable("pendidikan", {
+  id: serial("id").primaryKey(),
+  namaSarana: varchar("nama_sarana", { length: 255 }).notNull(),
+  jenjang: mysqlEnum("jenjang", [
+    "paud",
+    "tk",
+    "sd",
+    "smp",
+    "sma",
+    "smk",
+    "d1",
+    "d2",
+    "d3",
+    "d4",
+    "s1",
+    "s2",
+    "s3"
+  ]).notNull(),
+  alamat: text("alamat").notNull(),
+  latitude: decimal("latitude", { precision: 10, scale: 8 }),
+  longitude: decimal("longitude", { precision: 11, scale: 8 }),
+  kepala: varchar("kepala", { length: 255 }),
+  kontakNomor: varchar("kontak_nomor", { length: 20 }),
+  kontakEmail: varchar("kontak_email", { length: 255 }),
+  deskripsi: text("deskripsi"),
+  fotoUrl: text("foto_url"),
+  jumlahGuru: int("jumlah_guru"),
+  jumlahSiswa: int("jumlah_siswa"),
+  tahunBerdiri: int("tahun_berdiri"),
+  statusAkreditasi: varchar("status_akreditasi", { length: 10 }),
+  urutan: int("urutan").default(0),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().notNull().$onUpdate(() => /* @__PURE__ */ new Date())
+});
+var kesehatan = mysqlTable("kesehatan", {
+  id: serial("id").primaryKey(),
+  namaSarana: varchar("nama_sarana", { length: 255 }).notNull(),
+  jenis: mysqlEnum("jenis", [
+    "puskesmas",
+    "poliklinik",
+    "rumah_sakit",
+    "apotek",
+    "klinik",
+    "posyandu",
+    "praktik_dokter",
+    "praktik_bidan"
+  ]).notNull(),
+  alamat: text("alamat").notNull(),
+  latitude: decimal("latitude", { precision: 10, scale: 8 }),
+  longitude: decimal("longitude", { precision: 11, scale: 8 }),
+  pimpinan: varchar("pimpinan", { length: 255 }),
+  kontakNomor: varchar("kontak_nomor", { length: 20 }),
+  kontakEmail: varchar("kontak_email", { length: 255 }),
+  deskripsi: text("deskripsi"),
+  fotoUrl: text("foto_url"),
+  jamBuka: varchar("jam_buka", { length: 50 }),
+  jamTutup: varchar("jam_tutup", { length: 50 }),
+  layanan: json("layanan").$type().default([]),
+  urutan: int("urutan").default(0),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().notNull().$onUpdate(() => /* @__PURE__ */ new Date())
+});
+var ekonomi = mysqlTable("ekonomi", {
+  id: serial("id").primaryKey(),
+  namaSarana: varchar("nama_sarana", { length: 255 }).notNull(),
+  jenis: mysqlEnum("jenis", [
+    "pasar",
+    "toko",
+    "koperasi",
+    "bank",
+    "bpr",
+    "lkm",
+    "bmt",
+    "unit_desa",
+    "industri_kecil",
+    "pertanian",
+    "perternakan",
+    "perikanan"
+  ]).notNull(),
+  alamat: text("alamat").notNull(),
+  latitude: decimal("latitude", { precision: 10, scale: 8 }),
+  longitude: decimal("longitude", { precision: 11, scale: 8 }),
+  pimpinan: varchar("pimpinan", { length: 255 }),
+  kontakNomor: varchar("kontak_nomor", { length: 20 }),
+  kontakEmail: varchar("kontak_email", { length: 255 }),
+  deskripsi: text("deskripsi"),
+  fotoUrl: text("foto_url"),
+  jamBuka: varchar("jam_buka", { length: 50 }),
+  jamTutup: varchar("jam_tutup", { length: 50 }),
+  produk: json("produk").$type().default([]),
+  urutan: int("urutan").default(0),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().notNull().$onUpdate(() => /* @__PURE__ */ new Date())
 });
@@ -47917,6 +48047,364 @@ var dashboardRouter = createRouter({
     };
   })
 });
+var pariwisataRouter = createRouter({
+  list: publicQuery.query(async () => {
+    return db().select().from(pariwisata).orderBy(asc(pariwisata.urutan));
+  }),
+  reviews: createRouter({
+    listByPariwisataId: publicQuery.input(external_exports.object({ id: external_exports.number() })).query(async ({ input }) => {
+      return db().select().from(pariwisataReviews).where(eq(pariwisataReviews.pariwisataId, input.id)).orderBy(desc(pariwisataReviews.createdAt));
+    }),
+    create: authedQuery.input(
+      external_exports.object({
+        id: external_exports.number(),
+        rating: external_exports.number().min(1).max(5),
+        review: external_exports.string().min(1).max(2e3)
+      })
+    ).mutation(async ({ input, ctx }) => {
+      const user = ctx.user;
+      const unionId = user?.unionId;
+      if (!unionId) {
+        throw new Error("Missing user unionId");
+      }
+      const existing = await db().select().from(pariwisataReviews).where(
+        and(
+          eq(pariwisataReviews.pariwisataId, input.id),
+          eq(pariwisataReviews.unionId, unionId)
+        )
+      ).limit(1);
+      if (existing.length > 0) {
+        await db().update(pariwisataReviews).set({
+          rating: input.rating,
+          review: input.review
+        }).where(eq(pariwisataReviews.id, existing[0].id));
+      } else {
+        await db().insert(pariwisataReviews).values({
+          pariwisataId: input.id,
+          userId: user?.id,
+          unionId,
+          rating: input.rating,
+          review: input.review
+        });
+      }
+      const rows = await db().select({ avgRating: sql`AVG(${pariwisataReviews.rating})` }).from(pariwisataReviews).where(eq(pariwisataReviews.pariwisataId, input.id));
+      const avg = rows[0]?.avgRating ?? null;
+      await db().update(pariwisata).set({ rating: avg }).where(eq(pariwisata.id, input.id));
+      return { success: true };
+    })
+  }),
+  getById: publicQuery.input(external_exports.object({ id: external_exports.number() })).query(async ({ input }) => {
+    const rows = await db().select().from(pariwisata).where(eq(pariwisata.id, input.id));
+    return rows[0] || null;
+  }),
+  create: adminQuery.input(
+    external_exports.object({
+      namaPenginapan: external_exports.string().min(1),
+      alamat: external_exports.string().min(1),
+      latitude: external_exports.string().optional(),
+      longitude: external_exports.string().optional(),
+      deskripsi: external_exports.string().optional(),
+      fotoPenginapan: external_exports.array(external_exports.string()).default([]),
+      kontakWhatsapp: external_exports.string().optional(),
+      hargaMin: external_exports.string().optional(),
+      hargaMax: external_exports.string().optional(),
+      satuanHarga: external_exports.string().default("per malam"),
+      fasilitas: external_exports.array(external_exports.string()).default([]),
+      rating: external_exports.string().optional(),
+      urutan: external_exports.number().default(0)
+    })
+  ).mutation(async ({ input }) => {
+    const result = await db().insert(pariwisata).values({
+      ...input,
+      latitude: input.latitude ? input.latitude : void 0,
+      longitude: input.longitude ? input.longitude : void 0,
+      hargaMin: input.hargaMin ? input.hargaMin : void 0,
+      hargaMax: input.hargaMax ? input.hargaMax : void 0,
+      rating: input.rating ? input.rating : void 0
+    });
+    return { id: Number(result[0]?.insertId ?? 0), ...input };
+  }),
+  update: adminQuery.input(
+    external_exports.object({
+      id: external_exports.number(),
+      namaPenginapan: external_exports.string().optional(),
+      alamat: external_exports.string().optional(),
+      latitude: external_exports.string().optional(),
+      longitude: external_exports.string().optional(),
+      deskripsi: external_exports.string().optional(),
+      fotoPenginapan: external_exports.array(external_exports.string()).optional(),
+      kontakWhatsapp: external_exports.string().optional(),
+      hargaMin: external_exports.string().optional(),
+      hargaMax: external_exports.string().optional(),
+      satuanHarga: external_exports.string().optional(),
+      fasilitas: external_exports.array(external_exports.string()).optional(),
+      rating: external_exports.string().optional(),
+      urutan: external_exports.number().optional()
+    })
+  ).mutation(async ({ input }) => {
+    const { id, ...data } = input;
+    await db().update(pariwisata).set(data).where(eq(pariwisata.id, id));
+    return { success: true };
+  }),
+  delete: adminQuery.input(external_exports.object({ id: external_exports.number() })).mutation(async ({ input }) => {
+    await db().delete(pariwisata).where(eq(pariwisata.id, input.id));
+    return { success: true };
+  })
+});
+var pendidikanRouter = createRouter({
+  list: publicQuery.query(async () => {
+    return db().select().from(pendidikan).orderBy(asc(pendidikan.urutan));
+  }),
+  getById: publicQuery.input(external_exports.object({ id: external_exports.number() })).query(async ({ input }) => {
+    const rows = await db().select().from(pendidikan).where(eq(pendidikan.id, input.id));
+    return rows[0] || null;
+  }),
+  getByJenjang: publicQuery.input(external_exports.object({ jenjang: external_exports.string() })).query(async ({ input }) => {
+    return db().select().from(pendidikan).where(eq(pendidikan.jenjang, input.jenjang)).orderBy(asc(pendidikan.urutan));
+  }),
+  create: adminQuery.input(
+    external_exports.object({
+      namaSarana: external_exports.string().min(1),
+      jenjang: external_exports.enum([
+        "paud",
+        "tk",
+        "sd",
+        "smp",
+        "sma",
+        "smk",
+        "d1",
+        "d2",
+        "d3",
+        "d4",
+        "s1",
+        "s2",
+        "s3"
+      ]),
+      alamat: external_exports.string().min(1),
+      latitude: external_exports.string().optional(),
+      longitude: external_exports.string().optional(),
+      kepala: external_exports.string().optional(),
+      kontakNomor: external_exports.string().optional(),
+      kontakEmail: external_exports.string().optional(),
+      deskripsi: external_exports.string().optional(),
+      fotoUrl: external_exports.string().optional(),
+      jumlahGuru: external_exports.number().optional(),
+      jumlahSiswa: external_exports.number().optional(),
+      tahunBerdiri: external_exports.number().optional(),
+      statusAkreditasi: external_exports.string().optional(),
+      urutan: external_exports.number().default(0)
+    })
+  ).mutation(async ({ input }) => {
+    const result = await db().insert(pendidikan).values(input);
+    return { id: Number(result[0]?.insertId ?? 0), ...input };
+  }),
+  update: adminQuery.input(
+    external_exports.object({
+      id: external_exports.number(),
+      namaSarana: external_exports.string().optional(),
+      jenjang: external_exports.enum([
+        "paud",
+        "tk",
+        "sd",
+        "smp",
+        "sma",
+        "smk",
+        "d1",
+        "d2",
+        "d3",
+        "d4",
+        "s1",
+        "s2",
+        "s3"
+      ]).optional(),
+      alamat: external_exports.string().optional(),
+      latitude: external_exports.string().optional(),
+      longitude: external_exports.string().optional(),
+      kepala: external_exports.string().optional(),
+      kontakNomor: external_exports.string().optional(),
+      kontakEmail: external_exports.string().optional(),
+      deskripsi: external_exports.string().optional(),
+      fotoUrl: external_exports.string().optional(),
+      jumlahGuru: external_exports.number().optional(),
+      jumlahSiswa: external_exports.number().optional(),
+      tahunBerdiri: external_exports.number().optional(),
+      statusAkreditasi: external_exports.string().optional(),
+      urutan: external_exports.number().optional()
+    })
+  ).mutation(async ({ input }) => {
+    const { id, ...data } = input;
+    await db().update(pendidikan).set(data).where(eq(pendidikan.id, id));
+    return { success: true };
+  }),
+  delete: adminQuery.input(external_exports.object({ id: external_exports.number() })).mutation(async ({ input }) => {
+    await db().delete(pendidikan).where(eq(pendidikan.id, input.id));
+    return { success: true };
+  })
+});
+var kesehatanRouter = createRouter({
+  list: publicQuery.query(async () => {
+    return db().select().from(kesehatan).orderBy(asc(kesehatan.urutan));
+  }),
+  getById: publicQuery.input(external_exports.object({ id: external_exports.number() })).query(async ({ input }) => {
+    const rows = await db().select().from(kesehatan).where(eq(kesehatan.id, input.id));
+    return rows[0] || null;
+  }),
+  getByJenis: publicQuery.input(external_exports.object({ jenis: external_exports.string() })).query(async ({ input }) => {
+    return db().select().from(kesehatan).where(eq(kesehatan.jenis, input.jenis)).orderBy(asc(kesehatan.urutan));
+  }),
+  create: adminQuery.input(
+    external_exports.object({
+      namaSarana: external_exports.string().min(1),
+      jenis: external_exports.enum([
+        "puskesmas",
+        "poliklinik",
+        "rumah_sakit",
+        "apotek",
+        "klinik",
+        "posyandu",
+        "praktik_dokter",
+        "praktik_bidan"
+      ]),
+      alamat: external_exports.string().min(1),
+      latitude: external_exports.string().optional(),
+      longitude: external_exports.string().optional(),
+      pimpinan: external_exports.string().optional(),
+      kontakNomor: external_exports.string().optional(),
+      kontakEmail: external_exports.string().optional(),
+      deskripsi: external_exports.string().optional(),
+      fotoUrl: external_exports.string().optional(),
+      jamBuka: external_exports.string().optional(),
+      jamTutup: external_exports.string().optional(),
+      layanan: external_exports.array(external_exports.string()).default([]),
+      urutan: external_exports.number().default(0)
+    })
+  ).mutation(async ({ input }) => {
+    const result = await db().insert(kesehatan).values(input);
+    return { id: Number(result[0]?.insertId ?? 0), ...input };
+  }),
+  update: adminQuery.input(
+    external_exports.object({
+      id: external_exports.number(),
+      namaSarana: external_exports.string().optional(),
+      jenis: external_exports.enum([
+        "puskesmas",
+        "poliklinik",
+        "rumah_sakit",
+        "apotek",
+        "klinik",
+        "posyandu",
+        "praktik_dokter",
+        "praktik_bidan"
+      ]).optional(),
+      alamat: external_exports.string().optional(),
+      latitude: external_exports.string().optional(),
+      longitude: external_exports.string().optional(),
+      pimpinan: external_exports.string().optional(),
+      kontakNomor: external_exports.string().optional(),
+      kontakEmail: external_exports.string().optional(),
+      deskripsi: external_exports.string().optional(),
+      fotoUrl: external_exports.string().optional(),
+      jamBuka: external_exports.string().optional(),
+      jamTutup: external_exports.string().optional(),
+      layanan: external_exports.array(external_exports.string()).optional(),
+      urutan: external_exports.number().optional()
+    })
+  ).mutation(async ({ input }) => {
+    const { id, ...data } = input;
+    await db().update(kesehatan).set(data).where(eq(kesehatan.id, id));
+    return { success: true };
+  }),
+  delete: adminQuery.input(external_exports.object({ id: external_exports.number() })).mutation(async ({ input }) => {
+    await db().delete(kesehatan).where(eq(kesehatan.id, input.id));
+    return { success: true };
+  })
+});
+var ekonomiRouter = createRouter({
+  list: publicQuery.query(async () => {
+    return db().select().from(ekonomi).orderBy(asc(ekonomi.urutan));
+  }),
+  getById: publicQuery.input(external_exports.object({ id: external_exports.number() })).query(async ({ input }) => {
+    const rows = await db().select().from(ekonomi).where(eq(ekonomi.id, input.id));
+    return rows[0] || null;
+  }),
+  getByJenis: publicQuery.input(external_exports.object({ jenis: external_exports.string() })).query(async ({ input }) => {
+    return db().select().from(ekonomi).where(eq(ekonomi.jenis, input.jenis)).orderBy(asc(ekonomi.urutan));
+  }),
+  create: adminQuery.input(
+    external_exports.object({
+      namaSarana: external_exports.string().min(1),
+      jenis: external_exports.enum([
+        "pasar",
+        "toko",
+        "koperasi",
+        "bank",
+        "bpr",
+        "lkm",
+        "bmt",
+        "unit_desa",
+        "industri_kecil",
+        "pertanian",
+        "perternakan",
+        "perikanan"
+      ]),
+      alamat: external_exports.string().min(1),
+      latitude: external_exports.string().optional(),
+      longitude: external_exports.string().optional(),
+      pimpinan: external_exports.string().optional(),
+      kontakNomor: external_exports.string().optional(),
+      kontakEmail: external_exports.string().optional(),
+      deskripsi: external_exports.string().optional(),
+      fotoUrl: external_exports.string().optional(),
+      jamBuka: external_exports.string().optional(),
+      jamTutup: external_exports.string().optional(),
+      produk: external_exports.array(external_exports.string()).default([]),
+      urutan: external_exports.number().default(0)
+    })
+  ).mutation(async ({ input }) => {
+    const result = await db().insert(ekonomi).values(input);
+    return { id: Number(result[0]?.insertId ?? 0), ...input };
+  }),
+  update: adminQuery.input(
+    external_exports.object({
+      id: external_exports.number(),
+      namaSarana: external_exports.string().optional(),
+      jenis: external_exports.enum([
+        "pasar",
+        "toko",
+        "koperasi",
+        "bank",
+        "bpr",
+        "lkm",
+        "bmt",
+        "unit_desa",
+        "industri_kecil",
+        "pertanian",
+        "perternakan",
+        "perikanan"
+      ]).optional(),
+      alamat: external_exports.string().optional(),
+      latitude: external_exports.string().optional(),
+      longitude: external_exports.string().optional(),
+      pimpinan: external_exports.string().optional(),
+      kontakNomor: external_exports.string().optional(),
+      kontakEmail: external_exports.string().optional(),
+      deskripsi: external_exports.string().optional(),
+      fotoUrl: external_exports.string().optional(),
+      jamBuka: external_exports.string().optional(),
+      jamTutup: external_exports.string().optional(),
+      produk: external_exports.array(external_exports.string()).optional(),
+      urutan: external_exports.number().optional()
+    })
+  ).mutation(async ({ input }) => {
+    const { id, ...data } = input;
+    await db().update(ekonomi).set(data).where(eq(ekonomi.id, id));
+    return { success: true };
+  }),
+  delete: adminQuery.input(external_exports.object({ id: external_exports.number() })).mutation(async ({ input }) => {
+    await db().delete(ekonomi).where(eq(ekonomi.id, input.id));
+    return { success: true };
+  })
+});
 var desaRouter = createRouter({
   profil: profilRouter,
   statistik: statistikRouter,
@@ -47935,6 +48423,10 @@ var desaRouter = createRouter({
   runningText: runningTextRouter,
   jabatanSotk: jabatanSotkRouter,
   dusunSotk: dusunSotkRouter,
+  pariwisata: pariwisataRouter,
+  pendidikan: pendidikanRouter,
+  kesehatan: kesehatanRouter,
+  ekonomi: ekonomiRouter,
   dashboard: dashboardRouter
 });
 

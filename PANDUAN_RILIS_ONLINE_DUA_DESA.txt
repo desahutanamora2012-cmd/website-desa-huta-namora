@@ -90,6 +90,17 @@ Langkah 3: Mengunggah Kode Website ke GitHub Desa
 1) Buka GitHub dan login dengan akun desa.
 2) Gandakan (Fork) repository proyek ini ke GitHub desa Anda, atau buat repository baru dan unggah seluruh file proyek ini.
 3) Pastikan repository diatur ke mode "Private" (Swasta/Pribadi) agar kode dan struktur database aman dari pihak luar.
+buka cmd di folder local storage projek website, kemudian run stu persatu
+1. git init
+2. git add .
+3. git remote add origin https://github.com/UsernameAnda/desa_cantik.git
+jika error, run
+4. git remote remove origin
+run Kembali no 3
+5. git branch -M main
+6. git push -u origin main 
+
+
 
 Langkah 4: Meluncurkan Website di Vercel (Deploy)
 1) Buka dashboard Vercel dan login dengan akun GitHub desa.
