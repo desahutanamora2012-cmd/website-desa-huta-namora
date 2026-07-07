@@ -28507,7 +28507,8 @@ __export(schema_exports, {
   statistikDesa: () => statistikDesa,
   temaWebsite: () => temaWebsite,
   umkm: () => umkm,
-  users: () => users
+  users: () => users,
+  websiteVisits: () => websiteVisits
 });
 
 // node_modules/drizzle-orm/mysql-core/foreign-keys.js
@@ -32902,6 +32903,13 @@ var pariwisataReviews = mysqlTable("pariwisata_reviews", {
   review: text("review").notNull(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().notNull().$onUpdate(() => /* @__PURE__ */ new Date())
+});
+var websiteVisits = mysqlTable("website_visits", {
+  id: serial("id").primaryKey(),
+  visitDate: varchar("visit_date", { length: 10 }).notNull(),
+  // YYYY-MM-DD
+  fingerprint: varchar("fingerprint", { length: 64 }).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull()
 });
 var pendidikan = mysqlTable("pendidikan", {
   id: serial("id").primaryKey(),
@@ -47196,6 +47204,7 @@ function date5(params) {
 config(en_default());
 
 // api/desa-router.ts
+import { createHash } from "crypto";
 var db = () => getDb();
 var profilRouter = createRouter({
   list: publicQuery.query(async () => {
@@ -48046,6 +48055,47 @@ var dashboardRouter = createRouter({
       totalLembaga: lembagaCount.count,
       pengaduanBaru: pengaduanBaru.count
     };
+  }),
+  // Unique per device (cookie) per day
+  // NOTE: sementara dibuat tanpa filter tanggal untuk memastikan tidak 500.
+  // Setelah query stabil, kita kembalikan logic "per hari" yang benar.
+  visitsTotal: publicQuery.query(async () => {
+    try {
+      const rows = await db().select({ fingerprint: websiteVisits.fingerprint }).from(websiteVisits);
+      const unique = new Set(rows.map((r) => r.fingerprint));
+      return { total: unique.size };
+    } catch (err) {
+      throw new Error(
+        `[visitsTotal] website_visits query failed: ${err?.message ?? String(err)}`
+      );
+    }
+  }),
+  // Track visit once per day per fingerprint
+  visitsTrack: publicQuery.mutation(async ({ ctx }) => {
+    const req = ctx.req;
+    const resHeaders = ctx.resHeaders;
+    const visitDate = (/* @__PURE__ */ new Date()).toISOString().slice(0, 10);
+    const cookieHeader = req.headers.get("cookie") || "";
+    const userAgent = req.headers.get("user-agent") || "";
+    const VISITOR_COOKIE = "anon_visitor_id";
+    const anonMatch = cookieHeader.match(new RegExp(`${VISITOR_COOKIE}=([^;]+)`));
+    let anonId = anonMatch?.[1];
+    if (!anonId) {
+      const seed = `${Date.now()}_${userAgent}_${Math.random()}`;
+      anonId = createHash("sha256").update(seed).digest("hex").slice(0, 24);
+      resHeaders.append(
+        "set-cookie",
+        `${VISITOR_COOKIE}=${anonId}; Path=/; HttpOnly=false; SameSite=Lax; Max-Age=31536000`
+      );
+    }
+    const fingerprint = createHash("sha256").update(`${anonId}:${userAgent}`).digest("hex").slice(0, 64);
+    await db().insert(websiteVisits).values({
+      visitDate,
+      fingerprint
+    }).onDuplicateKeyUpdate({
+      set: { fingerprint: websiteVisits.fingerprint }
+    });
+    return { success: true };
   })
 });
 var pariwisataRouter = createRouter({

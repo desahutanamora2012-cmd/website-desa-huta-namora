@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { trpc } from "@/providers/trpc";
+import { VisitorWidget } from "./VisitorWidget";
 
 export default function RunningText() {
   const { data: runningTextList } = trpc.desa.runningText.list.useQuery();
@@ -18,37 +19,41 @@ export default function RunningText() {
   if (!runningTextList || runningTextList.length === 0) return null;
 
   const current = runningTextList[displayIndex];
+  const bg = current.backgroundColor || "#dc2626";
+  const fg = current.warna || "#ffffff";
+  const durationSeconds = (100 / (current.kecepatan || 50)) * 10;
 
   return (
     <div
-      className="sticky bottom-0 z-50 w-full overflow-hidden"
-      style={{ backgroundColor: current.backgroundColor || "#dc2626" }}
+      className="sticky bottom-0 z-50 w-full overflow-hidden relative"
+      style={{ backgroundColor: bg, display: "flex", flexDirection: "row" }}
     >
-      <style>{`
-        @keyframes scroll-left {
-          0% { transform: translateX(100%); }
-          100% { transform: translateX(-100%); }
-        }
+      <VisitorWidget backgroundColor={bg} textColor={fg} />
 
-        .running-text-container {
-          animation: scroll-left ${(100 / (current.kecepatan || 50)) * 10}s linear infinite;
-          white-space: nowrap;
-          padding: 12px 20px;
-          display: inline-block;
-        }
+      <div className="flex-1 overflow-hidden">
+        <style>{`
+          @keyframes scroll-left {
+            0% { transform: translateX(100%); }
+            100% { transform: translateX(-100%); }
+          }
 
-        .running-text-container:hover {
-          animation-play-state: paused;
-        }
-      `}</style>
+          .running-text-container {
+            animation: scroll-left ${durationSeconds}s linear infinite;
+            white-space: nowrap;
+            display: inline-block;
+            padding: 12px 20px;
+          }
 
-      {/* “Window” running text diperkecil + center */}
-      <div className="max-w-5xl mx-auto px-4 py-0">
-        <div className="running-text-wrapper">
+          .running-text-container:hover {
+            animation-play-state: paused;
+          }
+        `}</style>
+
+        <div className="w-full">
           <div
             className="running-text-container"
             style={{
-              color: current.warna || "#ffffff",
+              color: fg,
               fontSize: "15px",
               fontWeight: "500",
             }}

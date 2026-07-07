@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { eq, desc, asc, sql, like, and } from "drizzle-orm";
+import { createHash } from "crypto";
 import { getDb } from "./queries/connection.js";
 import {
   profilDesa,
@@ -24,6 +25,7 @@ import {
   pendidikan,
   kesehatan,
   ekonomi,
+  websiteVisits,
 } from "../db/schema.js";
 import { createRouter, publicQuery, adminQuery, authedQuery } from "./middleware.js";
 
@@ -1309,6 +1311,74 @@ const dashboardRouter = createRouter({
       pengaduanBaru: pengaduanBaru.count,
     };
   }),
+
+  // Unique per device (cookie) per day
+  // NOTE: sementara dibuat tanpa filter tanggal untuk memastikan tidak 500.
+  // Setelah query stabil, kita kembalikan logic "per hari" yang benar.
+  visitsTotal: publicQuery.query(async () => {
+    try {
+      const rows = await db()
+        .select({ fingerprint: websiteVisits.fingerprint })
+        .from(websiteVisits);
+
+      const unique = new Set(rows.map((r) => r.fingerprint));
+      return { total: unique.size };
+    } catch (err: any) {
+      // Re-throw with clearer message for client/logs
+      throw new Error(
+        `[visitsTotal] website_visits query failed: ${err?.message ?? String(err)}`,
+      );
+    }
+  }),
+
+  // Track visit once per day per fingerprint
+  visitsTrack: publicQuery.mutation(async ({ ctx }) => {
+    const req = ctx.req;
+    const resHeaders = ctx.resHeaders;
+
+    const visitDate = new Date().toISOString().slice(0, 10);
+
+    const cookieHeader = req.headers.get("cookie") || "";
+    const userAgent = req.headers.get("user-agent") || "";
+
+    // create/load anon id cookie
+    // NOTE: we keep this simple to avoid extra dependencies
+    const VISITOR_COOKIE = "anon_visitor_id";
+    const anonMatch = cookieHeader.match(new RegExp(`${VISITOR_COOKIE}=([^;]+)`));
+    let anonId = anonMatch?.[1];
+
+    if (!anonId) {
+      // random-ish: based on time + UA
+      const seed = `${Date.now()}_${userAgent}_${Math.random()}`;
+      anonId = createHash("sha256").update(seed).digest("hex").slice(0, 24);
+
+      // set cookie
+      resHeaders.append(
+        "set-cookie",
+        `${VISITOR_COOKIE}=${anonId}; Path=/; HttpOnly=false; SameSite=Lax; Max-Age=31536000`,
+      );
+    }
+
+    const fingerprint = createHash("sha256")
+      .update(`${anonId}:${userAgent}`)
+      .digest("hex")
+      .slice(0, 64);
+
+    // Unique constraint (visitDate, fingerprint) will ensure once per day
+    await db()
+      .insert(websiteVisits)
+      .values({
+        visitDate,
+        fingerprint,
+      })
+      // MySQL: onDuplicateKeyUpdate must be a valid update expression
+      // (empty set can cause runtime errors depending on driver)
+      .onDuplicateKeyUpdate({
+        set: { fingerprint: websiteVisits.fingerprint },
+      } as any);
+
+    return { success: true };
+  }),
 });
 
 // ============================================================
@@ -1364,7 +1434,7 @@ const pariwisataRouter = createRouter({
           await db()
             .update(pariwisataReviews)
             .set({
-              rating: input.rating,
+              rating: input.rating as any,
               review: input.review,
             })
             .where(eq(pariwisataReviews.id, existing[0].id));

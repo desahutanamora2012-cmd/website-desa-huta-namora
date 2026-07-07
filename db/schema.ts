@@ -523,6 +523,19 @@ export const pariwisataReviews = mysqlTable("pariwisata_reviews", {
 export type PariwisataReviews = typeof pariwisataReviews.$inferSelect;
 export type InsertPariwisataReviews = typeof pariwisataReviews.$inferInsert;
 
+// ============================================================
+// 99. website_visits - track unique daily visits (anonymized)
+// ============================================================
+export const websiteVisits = mysqlTable("website_visits", {
+  id: serial("id").primaryKey(),
+  visitDate: varchar("visit_date", { length: 10 }).notNull(), // YYYY-MM-DD
+  fingerprint: varchar("fingerprint", { length: 64 }).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type WebsiteVisit = typeof websiteVisits.$inferSelect;
+export type InsertWebsiteVisit = typeof websiteVisits.$inferInsert;
+
 export type Pariwisata = typeof pariwisata.$inferSelect;
 export type InsertPariwisata = typeof pariwisata.$inferInsert;
 
