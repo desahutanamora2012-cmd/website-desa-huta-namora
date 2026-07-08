@@ -26,7 +26,7 @@ import {
   kesehatan,
   ekonomi,
   websiteVisits,
-} from "../../db/schema.js";
+} from "../db/schema.js";
 import { createRouter, publicQuery, adminQuery, authedQuery } from "./middleware.js";
 
 const db = () => getDb();

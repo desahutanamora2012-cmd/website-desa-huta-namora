@@ -11,8 +11,9 @@
       "path": "./tsconfig.server.json"
     }
   ],
-  "include": ["src", "api", "contracts", "db", "vite.config.ts"],
+  "include": ["src", "api", "server", "contracts", "db", "vite.config.ts"],
   "compilerOptions": {
+    "ignoreDeprecations": "6.0",
     "baseUrl": ".",
     "moduleResolution": "bundler",
     "paths": {
