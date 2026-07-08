@@ -2,7 +2,11 @@ import { useEffect, useState } from "react";
 import { trpc } from "@/providers/trpc";
 
 export default function BackgroundCarousel() {
-  const { data: tema } = trpc.desa.tema.get.useQuery();
+  const { data: temaWebsite } = trpc.desa.tema.temaWebsite.list.useQuery();
+
+  const tema = Array.isArray(temaWebsite) ? temaWebsite[0] : temaWebsite;
+
+
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
   const images = [

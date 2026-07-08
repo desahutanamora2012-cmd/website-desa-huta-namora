@@ -1,12 +1,12 @@
 import { z } from "zod";
 import { eq, asc } from "drizzle-orm";
-import { createRouter, publicQuery } from "./middleware.js";
-import { getDb } from "./queries/connection.js";
+import { createRouter, publicQuery } from "./middleware.ts";
+import { getDb } from "./queries/connection.ts";
 import {
   dusunSotk,
   jabatanSotk,
   type JabatanSotk,
-} from "../db/schema.js";
+} from "@db/schema.js";
 
 const db = () => getDb();
 

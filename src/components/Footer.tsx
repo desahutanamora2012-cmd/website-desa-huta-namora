@@ -13,7 +13,9 @@ import {
 
 export default function Footer() {
   const { data: profil } = trpc.desa.profil.list.useQuery();
+  const { data: temaWebsite } = trpc.desa.tema.temaWebsite.list.useQuery();
 
+  const tema = Array.isArray(temaWebsite) ? temaWebsite[0] : temaWebsite;
   const namaDesa = profil?.nama_desa || "Desa Cantik";
   const kecamatan = profil?.kecamatan || "Kecamatan";
   const kabupaten = profil?.kabupaten || "Kabupaten";
@@ -24,7 +26,7 @@ export default function Footer() {
   const footerTeks =
     profil?.footer_teks ||
     "Hasil Pembinaan Desa Cantik (Desa Cinta Statistik) BPS Kabupaten Samosir";
-  const footerLogoUrl = profil?.footer_logo_url || "";
+  const footerLogoUrl = profil?.footer_logo_url || (tema as any)?.logoUrl || (tema as any)?.logoKecilUrl || "";
   const medsos = profil?.medsos
     ? JSON.parse(profil.medsos)
     : { facebook: "", instagram: "", youtube: "" };
@@ -164,6 +166,7 @@ export default function Footer() {
           <div className="flex flex-col md:flex-row md:items-center md:justify-center gap-2 md:gap-3">
             {footerLogoUrl ? (
               <img
+                key={footerLogoUrl || "footer-logo"}
                 src={footerLogoUrl}
                 alt="Logo BPS"
                 className="h-9 object-contain mx-auto md:mx-0"

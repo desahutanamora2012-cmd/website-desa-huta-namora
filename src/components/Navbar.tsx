@@ -77,10 +77,12 @@ export default function Navbar() {
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   const location = useLocation();
   const { data: profil } = trpc.desa.profil.list.useQuery();
-  const { data: tema } = trpc.desa.tema.get.useQuery();
+  const { data: temaWebsite } = trpc.desa.tema.temaWebsite.list.useQuery();
+
+  const tema = Array.isArray(temaWebsite) ? temaWebsite[0] : temaWebsite;
 
   const namaDesa = profil?.nama_desa || "Desa Cantik";
-  const logoUrl = profil?.logo_url || "";
+  const logoUrl = profil?.logo_url || (tema as any)?.logoUrl || (tema as any)?.logoKecilUrl || "";
 
   const warnaPrimer = tema?.warnaPrimer || "#065f46";
   const warnaAccent = tema?.warnaAccent || "#dc2626";

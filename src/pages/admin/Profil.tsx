@@ -92,7 +92,11 @@ export default function AdminProfil() {
   const { data: profil, isLoading } = trpc.desa.profil.list.useQuery();
 
   const setProfil = trpc.desa.profil.setMany.useMutation({
-    onSuccess: () => {
+    onSuccess: (_data, variables) => {
+      utils.desa.profil.list.setData(undefined, (prev: Record<string, string> | undefined) => ({
+        ...(prev ?? {}),
+        ...(variables as Record<string, string>),
+      }));
       utils.desa.profil.list.invalidate();
       toast.success("Profil desa berhasil diperbarui!");
     },

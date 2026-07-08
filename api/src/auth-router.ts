@@ -1,9 +1,9 @@
 import * as cookie from "cookie";
-import { Session } from "../contracts/constants.js";
-import { getSessionCookieOptions } from "./lib/cookies.js";
-import { createRouter, authedQuery, publicQuery } from "./middleware.js";
-import { findUserByUsername, updateUserPassword } from "./queries/users.js";
-import { env } from "./lib/env.js";
+import { Session } from "@contracts/constants.ts";
+import { getSessionCookieOptions } from "./lib/cookies.ts";
+import { createRouter, authedQuery, publicQuery } from "./middleware.ts";
+import { findUserByUsername, updateUserPassword } from "./queries/users.ts";
+import { env } from "./lib/env.ts";
 
 export const authRouter = createRouter({
   me: authedQuery.query((opts) => opts.ctx.user),

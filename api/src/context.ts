@@ -1,6 +1,6 @@
 import type { FetchCreateContextFnOptions } from "@trpc/server/adapters/fetch";
-import type { User } from "../db/schema.js";
-import { authenticateRequest } from "./kimi/auth.js";
+import type { User } from "@db/schema.js";
+import { authenticateRequest } from "./kimi/auth.ts";
 
 export type TrpcContext = {
   req: Request;

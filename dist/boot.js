@@ -20904,7 +20904,7 @@ var init_serve_static = __esm({
   }
 });
 
-// api/lib/vite.ts
+// api/src/lib/vite.ts
 var vite_exports = {};
 __export(vite_exports, {
   serveStaticFiles: () => serveStaticFiles
@@ -20912,7 +20912,7 @@ __export(vite_exports, {
 import fs from "fs";
 import path from "path";
 function serveStaticFiles(app2) {
-  const distPath = path.resolve(import.meta.dirname, "../dist/public");
+  const distPath = path.resolve(import.meta.dirname, "../../dist/public");
   app2.use("*", serveStatic({ root: "./dist/public" }));
   app2.notFound((c) => {
     const accept = c.req.header("accept") ?? "";
@@ -20925,7 +20925,7 @@ function serveStaticFiles(app2) {
   });
 }
 var init_vite = __esm({
-  "api/lib/vite.ts"() {
+  "api/src/lib/vite.ts"() {
     init_serve_static();
   }
 });
@@ -25418,7 +25418,7 @@ async function fetchRequestHandler(opts) {
   }));
 }
 
-// api/auth-router.ts
+// api/src/auth-router.ts
 var cookie = __toESM(require_dist(), 1);
 
 // contracts/constants.ts
@@ -25431,7 +25431,7 @@ var ErrorMessages = {
   insufficientRole: "Insufficient permissions"
 };
 
-// api/lib/cookies.ts
+// api/src/lib/cookies.ts
 function isLocalhost(headers) {
   const host = headers.get("x-forwarded-host") || headers.get("host") || "";
   return host.startsWith("localhost:") || host.startsWith("127.0.0.1:") || host === "localhost" || host === "127.0.0.1";
@@ -26557,7 +26557,7 @@ var registerCustom = SuperJSON.registerCustom;
 var registerSymbol = SuperJSON.registerSymbol;
 var allowErrorProps = SuperJSON.allowErrorProps;
 
-// api/middleware.ts
+// api/src/middleware.ts
 var t = initTRPC.context().create({
   transformer: dist_default
 });
@@ -33292,13 +33292,13 @@ function construct(client, config2 = {}) {
   const mode = config2.mode ?? "default";
   const driver = new MySql2Driver(clientForInstance, dialect, { logger, cache: config2.cache });
   const session = driver.createSession(schema, mode);
-  const db2 = new MySql2Database(dialect, session, schema, mode);
-  db2.$client = client;
-  db2.$cache = config2.cache;
-  if (db2.$cache) {
-    db2.$cache["invalidate"] = config2.cache?.onMutate;
+  const db3 = new MySql2Database(dialect, session, schema, mode);
+  db3.$client = client;
+  db3.$cache = config2.cache;
+  if (db3.$cache) {
+    db3.$cache["invalidate"] = config2.cache?.onMutate;
   }
-  return db2;
+  return db3;
 }
 function isCallbackClient(client) {
   return typeof client.promise === "function";
@@ -33318,8 +33318,8 @@ function drizzle(...params) {
       uri: connection,
       supportBigNumbers: true
     }) : (0, import_mysql2.createPool)(connection);
-    const db2 = construct(instance2, drizzleConfig);
-    return db2;
+    const db3 = construct(instance2, drizzleConfig);
+    return db3;
   }
   return construct(params[0], params[1]);
 }
@@ -33341,7 +33341,7 @@ function drizzle(...params) {
   );
 })();
 
-// api/lib/env.ts
+// api/src/lib/env.ts
 function required(name) {
   const value = process.env[name];
   if (!value && process.env.NODE_ENV === "production") {
@@ -33362,7 +33362,7 @@ var env = {
 // db/relations.ts
 var relations_exports = {};
 
-// api/queries/connection.ts
+// api/src/queries/connection.ts
 var fullSchema = { ...schema_exports, ...relations_exports };
 var instance;
 function getDb() {
@@ -33375,7 +33375,7 @@ function getDb() {
   return instance;
 }
 
-// api/queries/users.ts
+// api/src/queries/users.ts
 async function findUserByUnionId(unionId) {
   const rows = await getDb().select().from(users).where(eq(users.unionId, unionId)).limit(1);
   return rows[0];
@@ -33401,7 +33401,7 @@ async function updateUserPassword(username, newPassword) {
   }).where(eq(users.unionId, unionId));
 }
 
-// api/auth-router.ts
+// api/src/auth-router.ts
 var authRouter = createRouter({
   me: authedQuery.query((opts) => opts.ctx.user),
   logout: authedQuery.mutation(async ({ ctx }) => {
@@ -47203,9 +47203,25 @@ function date5(params) {
 // node_modules/zod/v4/classic/external.js
 config(en_default());
 
-// api/desa-router.ts
+// api/src/desa-router.ts
 import { createHash } from "crypto";
 var db = () => getDb();
+var normalizeBorderRadius = (value) => {
+  const allowed = ["none", "sm", "md", "lg", "full"];
+  if (value === void 0 || value === null || value === "") return void 0;
+  const normalized = String(value).trim().toLowerCase();
+  if (allowed.includes(normalized)) {
+    return normalized;
+  }
+  const mapped = {
+    "rounded-none": "none",
+    "rounded-sm": "sm",
+    "rounded-md": "md",
+    "rounded-lg": "lg",
+    "rounded-full": "full"
+  };
+  return mapped[normalized] ?? "md";
+};
 var profilRouter = createRouter({
   list: publicQuery.query(async () => {
     const rows = await db().select().from(profilDesa);
@@ -47425,7 +47441,7 @@ var panduanRouter = createRouter({
 });
 var dokumenRouter = createRouter({
   list: publicQuery.query(async () => {
-    return db().select().from(dokumen).orderBy(asc(dokumen.urutan));
+    return db().select().from(dokumen).orderBy(desc(dokumen.createdAt));
   }),
   getById: publicQuery.input(external_exports.object({ id: external_exports.number() })).query(async ({ input }) => {
     const rows = await db().select().from(dokumen).where(eq(dokumen.id, input.id));
@@ -47434,10 +47450,9 @@ var dokumenRouter = createRouter({
   create: adminQuery.input(
     external_exports.object({
       judul: external_exports.string(),
+      deskripsi: external_exports.string(),
       fileUrl: external_exports.string(),
-      deskripsi: external_exports.string().optional(),
-      kategori: external_exports.string().optional(),
-      urutan: external_exports.number().optional()
+      kategori: external_exports.string()
     })
   ).mutation(async ({ input }) => {
     const result = await db().insert(dokumen).values(input);
@@ -47447,10 +47462,9 @@ var dokumenRouter = createRouter({
     external_exports.object({
       id: external_exports.number(),
       judul: external_exports.string().optional(),
-      fileUrl: external_exports.string().optional(),
       deskripsi: external_exports.string().optional(),
-      kategori: external_exports.string().optional(),
-      urutan: external_exports.number().optional()
+      fileUrl: external_exports.string().optional(),
+      kategori: external_exports.string().optional()
     })
   ).mutation(async ({ input }) => {
     const { id, ...data } = input;
@@ -47463,11 +47477,8 @@ var dokumenRouter = createRouter({
   })
 });
 var lembagaRouter = createRouter({
-  list: publicQuery.input(external_exports.object({ jenis: external_exports.string().optional() }).optional()).query(async ({ input }) => {
-    if (input?.jenis) {
-      return db().select().from(lembaga).where(eq(lembaga.jenis, input.jenis)).orderBy(asc(lembaga.urutan));
-    }
-    return db().select().from(lembaga).orderBy(asc(lembaga.urutan));
+  list: publicQuery.query(async () => {
+    return db().select().from(lembaga).orderBy(desc(lembaga.createdAt));
   }),
   getById: publicQuery.input(external_exports.object({ id: external_exports.number() })).query(async ({ input }) => {
     const rows = await db().select().from(lembaga).where(eq(lembaga.id, input.id));
@@ -47476,19 +47487,8 @@ var lembagaRouter = createRouter({
   create: adminQuery.input(
     external_exports.object({
       nama: external_exports.string(),
-      jenis: external_exports.enum([
-        "pemerintahan",
-        "bpd",
-        "pkk",
-        "karang_taruna",
-        "lpmd",
-        "lainnya"
-      ]).optional(),
-      deskripsi: external_exports.string().optional(),
-      fotoUrl: external_exports.string().optional(),
-      ketua: external_exports.string().optional(),
-      anggota: external_exports.number().optional(),
-      urutan: external_exports.number().optional()
+      deskripsi: external_exports.string(),
+      gambar: external_exports.string().optional()
     })
   ).mutation(async ({ input }) => {
     const result = await db().insert(lembaga).values(input);
@@ -47498,19 +47498,8 @@ var lembagaRouter = createRouter({
     external_exports.object({
       id: external_exports.number(),
       nama: external_exports.string().optional(),
-      jenis: external_exports.enum([
-        "pemerintahan",
-        "bpd",
-        "pkk",
-        "karang_taruna",
-        "lpmd",
-        "lainnya"
-      ]).optional(),
       deskripsi: external_exports.string().optional(),
-      fotoUrl: external_exports.string().optional(),
-      ketua: external_exports.string().optional(),
-      anggota: external_exports.number().optional(),
-      urutan: external_exports.number().optional()
+      gambar: external_exports.string().optional()
     })
   ).mutation(async ({ input }) => {
     const { id, ...data } = input;
@@ -47523,11 +47512,8 @@ var lembagaRouter = createRouter({
   })
 });
 var galeriRouter = createRouter({
-  list: publicQuery.input(external_exports.object({ kategori: external_exports.string().optional() }).optional()).query(async ({ input }) => {
-    if (input?.kategori) {
-      return db().select().from(galeri).where(eq(galeri.kategori, input.kategori)).orderBy(desc(galeri.tanggal));
-    }
-    return db().select().from(galeri).orderBy(desc(galeri.tanggal));
+  list: publicQuery.query(async () => {
+    return db().select().from(galeri).orderBy(desc(galeri.createdAt));
   }),
   getById: publicQuery.input(external_exports.object({ id: external_exports.number() })).query(async ({ input }) => {
     const rows = await db().select().from(galeri).where(eq(galeri.id, input.id));
@@ -47550,12 +47536,8 @@ var galeriRouter = createRouter({
       deskripsi: external_exports.string().optional()
     })
   ).mutation(async ({ input }) => {
-    const data = { ...input };
-    if (input.tanggal) {
-      data.tanggal = new Date(input.tanggal);
-    }
-    const result = await db().insert(galeri).values(data);
-    return { id: Number(result[0]?.insertId ?? 0), ...data };
+    const result = await db().insert(galeri).values(input);
+    return { id: Number(result[0]?.insertId ?? 0), ...input };
   }),
   update: adminQuery.input(
     external_exports.object({
@@ -47575,11 +47557,7 @@ var galeriRouter = createRouter({
       deskripsi: external_exports.string().optional()
     })
   ).mutation(async ({ input }) => {
-    const { id, ...rawData } = input;
-    const data = { ...rawData };
-    if (data.tanggal) {
-      data.tanggal = new Date(data.tanggal);
-    }
+    const { id, ...data } = input;
     await db().update(galeri).set(data).where(eq(galeri.id, id));
     return { id, ...data };
   }),
@@ -47589,11 +47567,8 @@ var galeriRouter = createRouter({
   })
 });
 var komoditasRouter = createRouter({
-  list: publicQuery.input(external_exports.object({ jenis: external_exports.string().optional() }).optional()).query(async ({ input }) => {
-    if (input?.jenis) {
-      return db().select().from(komoditas).where(eq(komoditas.jenis, input.jenis)).orderBy(asc(komoditas.urutan));
-    }
-    return db().select().from(komoditas).orderBy(asc(komoditas.urutan));
+  list: publicQuery.query(async () => {
+    return db().select().from(komoditas).orderBy(desc(komoditas.createdAt));
   }),
   getById: publicQuery.input(external_exports.object({ id: external_exports.number() })).query(async ({ input }) => {
     const rows = await db().select().from(komoditas).where(eq(komoditas.id, input.id));
@@ -47602,13 +47577,8 @@ var komoditasRouter = createRouter({
   create: adminQuery.input(
     external_exports.object({
       nama: external_exports.string(),
-      jenis: external_exports.enum(["pertanian", "peternakan", "perikanan", "perkebunan"]).optional(),
-      deskripsi: external_exports.string().optional(),
-      luasLahan: external_exports.string().optional(),
-      hasilProduksi: external_exports.string().optional(),
-      satuan: external_exports.string().optional(),
-      fotoUrl: external_exports.string().optional(),
-      urutan: external_exports.number().optional()
+      deskripsi: external_exports.string(),
+      gambar: external_exports.string().optional()
     })
   ).mutation(async ({ input }) => {
     const result = await db().insert(komoditas).values(input);
@@ -47618,13 +47588,8 @@ var komoditasRouter = createRouter({
     external_exports.object({
       id: external_exports.number(),
       nama: external_exports.string().optional(),
-      jenis: external_exports.enum(["pertanian", "peternakan", "perikanan", "perkebunan"]).optional(),
       deskripsi: external_exports.string().optional(),
-      luasLahan: external_exports.string().optional(),
-      hasilProduksi: external_exports.string().optional(),
-      satuan: external_exports.string().optional(),
-      fotoUrl: external_exports.string().optional(),
-      urutan: external_exports.number().optional()
+      gambar: external_exports.string().optional()
     })
   ).mutation(async ({ input }) => {
     const { id, ...data } = input;
@@ -47637,10 +47602,7 @@ var komoditasRouter = createRouter({
   })
 });
 var umkmRouter = createRouter({
-  list: publicQuery.input(external_exports.object({ kategori: external_exports.string().optional() }).optional()).query(async ({ input }) => {
-    if (input?.kategori) {
-      return db().select().from(umkm).where(eq(umkm.kategori, input.kategori)).orderBy(desc(umkm.createdAt));
-    }
+  list: publicQuery.query(async () => {
     return db().select().from(umkm).orderBy(desc(umkm.createdAt));
   }),
   getById: publicQuery.input(external_exports.object({ id: external_exports.number() })).query(async ({ input }) => {
@@ -47701,39 +47663,40 @@ var umkmRouter = createRouter({
   })
 });
 var pengaduanRouter = createRouter({
-  list: adminQuery.query(async () => {
+  list: publicQuery.query(async () => {
     return db().select().from(pengaduan).orderBy(desc(pengaduan.createdAt));
   }),
-  listPublic: publicQuery.query(async () => {
-    return db().select({
-      id: pengaduan.id,
-      nama: pengaduan.nama,
-      pesan: pengaduan.pesan,
-      status: pengaduan.status,
-      respon: pengaduan.respon,
-      createdAt: pengaduan.createdAt
-    }).from(pengaduan).orderBy(desc(pengaduan.createdAt));
-  }),
-  getById: adminQuery.input(external_exports.object({ id: external_exports.number() })).query(async ({ input }) => {
+  getById: publicQuery.input(external_exports.object({ id: external_exports.number() })).query(async ({ input }) => {
     const rows = await db().select().from(pengaduan).where(eq(pengaduan.id, input.id));
     return rows[0] || null;
   }),
-  create: publicQuery.input(
+  create: authedQuery.input(
     external_exports.object({
-      nama: external_exports.string().min(1),
-      kontak: external_exports.string().min(1),
-      email: external_exports.string().email().optional(),
-      pesan: external_exports.string().min(1)
+      judul: external_exports.string(),
+      deskripsi: external_exports.string(),
+      gambar: external_exports.string().optional()
     })
-  ).mutation(async ({ input }) => {
-    const result = await db().insert(pengaduan).values(input);
-    return { id: Number(result[0]?.insertId ?? 0), ...input };
+  ).mutation(async ({ input, ctx }) => {
+    const result = await db().insert(pengaduan).values({
+      ...input,
+      nama: input.judul,
+      kontak: "",
+      // You might need to adjust this based on your user context
+      pesan: input.deskripsi,
+      status: "baru",
+      email: ""
+      // You might need to adjust this based on your user context
+      // userId: ctx.user.id, // userId is not in the schema for pengaduan
+    });
+    return { id: Number(result[0]?.insertId ?? 0), ...input, status: "pending" };
   }),
-  updateStatus: adminQuery.input(
+  update: adminQuery.input(
     external_exports.object({
       id: external_exports.number(),
-      status: external_exports.enum(["baru", "diproses", "selesai", "ditolak"]),
-      respon: external_exports.string().optional()
+      judul: external_exports.string().optional(),
+      deskripsi: external_exports.string().optional(),
+      gambar: external_exports.string().optional(),
+      status: external_exports.enum(["baru", "diproses", "selesai", "ditolak"]).optional()
     })
   ).mutation(async ({ input }) => {
     const { id, ...data } = input;
@@ -47749,20 +47712,20 @@ var apbdesRouter = createRouter({
   list: publicQuery.query(async () => {
     return db().select().from(apbdes).orderBy(desc(apbdes.tahun));
   }),
-  getById: publicQuery.input(external_exports.object({ id: external_exports.number() })).query(async ({ input }) => {
-    const rows = await db().select().from(apbdes).where(eq(apbdes.id, input.id));
-    return rows[0] || null;
-  }),
   getLatest: publicQuery.query(async () => {
     const rows = await db().select().from(apbdes).orderBy(desc(apbdes.tahun)).limit(1);
+    return rows[0] || null;
+  }),
+  getById: publicQuery.input(external_exports.object({ id: external_exports.number() })).query(async ({ input }) => {
+    const rows = await db().select().from(apbdes).where(eq(apbdes.id, input.id));
     return rows[0] || null;
   }),
   create: adminQuery.input(
     external_exports.object({
       tahun: external_exports.number(),
-      pendapatanTotal: external_exports.string().optional(),
-      belanjaTotal: external_exports.string().optional(),
-      pembiayaanTotal: external_exports.string().optional(),
+      pendapatanTotal: external_exports.union([external_exports.string(), external_exports.number()]).optional(),
+      belanjaTotal: external_exports.union([external_exports.string(), external_exports.number()]).optional(),
+      pembiayaanTotal: external_exports.union([external_exports.string(), external_exports.number()]).optional(),
       rincianPendapatan: external_exports.any().optional(),
       rincianBelanja: external_exports.any().optional(),
       dokumenUrl: external_exports.string().optional(),
@@ -47776,9 +47739,9 @@ var apbdesRouter = createRouter({
     external_exports.object({
       id: external_exports.number(),
       tahun: external_exports.number().optional(),
-      pendapatanTotal: external_exports.string().optional(),
-      belanjaTotal: external_exports.string().optional(),
-      pembiayaanTotal: external_exports.string().optional(),
+      pendapatanTotal: external_exports.union([external_exports.string(), external_exports.number()]).optional(),
+      belanjaTotal: external_exports.union([external_exports.string(), external_exports.number()]).optional(),
+      pembiayaanTotal: external_exports.union([external_exports.string(), external_exports.number()]).optional(),
       rincianPendapatan: external_exports.any().optional(),
       rincianBelanja: external_exports.any().optional(),
       dokumenUrl: external_exports.string().optional(),
@@ -47794,46 +47757,83 @@ var apbdesRouter = createRouter({
     return { success: true };
   })
 });
-var temaRouter = createRouter({
-  get: publicQuery.query(async () => {
-    const rows = await db().select().from(temaWebsite).limit(1);
-    return rows[0] || {
-      statusDesa: "desa",
-      tema: "light",
-      warnaPrimer: "#065f46",
-      warnaSkunder: "#f3f4f6",
-      warnaAccent: "#dc2626",
-      borderRadius: "md",
-      runningTextAktif: 1
-    };
+var temaWebsiteRouter = createRouter({
+  list: publicQuery.query(async () => {
+    return db().select().from(temaWebsite).limit(1);
   }),
-  update: adminQuery.input(
+  getById: publicQuery.input(external_exports.object({ id: external_exports.number() })).query(async ({ input }) => {
+    const rows = await db().select().from(temaWebsite).where(eq(temaWebsite.id, input.id));
+    return rows[0] || null;
+  }),
+  create: adminQuery.input(
     external_exports.object({
       statusDesa: external_exports.enum(["desa", "kelurahan"]).optional(),
       tema: external_exports.enum(["light", "dark", "custom"]).optional(),
-      warnaPrimer: external_exports.string().regex(/^#[0-9A-F]{6}$/i).optional(),
-      warnaSkunder: external_exports.string().regex(/^#[0-9A-F]{6}$/i).optional(),
-      warnaAccent: external_exports.string().regex(/^#[0-9A-F]{6}$/i).optional(),
+      warnaPrimer: external_exports.string().optional(),
+      warnaSkunder: external_exports.string().optional(),
+      warnaSekunder: external_exports.string().optional(),
+      warnaAccent: external_exports.string().optional(),
+      warnaAksen: external_exports.string().optional(),
       backgroundImage1: external_exports.string().optional(),
       backgroundImage2: external_exports.string().optional(),
       backgroundImage3: external_exports.string().optional(),
-      backgroundAnimationSpeed: external_exports.number().min(1).max(60).optional(),
+      backgroundAnimationSpeed: external_exports.number().optional(),
       logoUrl: external_exports.string().optional(),
       logoKecilUrl: external_exports.string().optional(),
       faviconUrl: external_exports.string().optional(),
       runningTextAktif: external_exports.number().optional(),
       fontFamily: external_exports.string().optional(),
-      borderRadius: external_exports.enum(["none", "sm", "md", "lg", "full"]).optional()
+      borderRadius: external_exports.string().optional()
     })
   ).mutation(async ({ input }) => {
-    const existing = await db().select().from(temaWebsite).limit(1);
-    if (existing.length > 0) {
-      await db().update(temaWebsite).set(input);
-      return { ...existing[0], ...input };
-    } else {
-      const result = await db().insert(temaWebsite).values(input);
-      return { id: Number(result[0]?.insertId ?? 0), ...input };
-    }
+    const data = {
+      ...input,
+      borderRadius: normalizeBorderRadius(input.borderRadius),
+      warnaSkunder: input.warnaSkunder ?? input.warnaSekunder,
+      warnaAccent: input.warnaAccent ?? input.warnaAksen
+    };
+    delete data.warnaSekunder;
+    delete data.warnaAksen;
+    const result = await db().insert(temaWebsite).values(data);
+    return { id: Number(result[0]?.insertId ?? 0), ...data };
+  }),
+  update: adminQuery.input(
+    external_exports.object({
+      id: external_exports.number(),
+      statusDesa: external_exports.enum(["desa", "kelurahan"]).optional(),
+      tema: external_exports.enum(["light", "dark", "custom"]).optional(),
+      warnaPrimer: external_exports.string().optional(),
+      warnaSkunder: external_exports.string().optional(),
+      warnaSekunder: external_exports.string().optional(),
+      warnaAccent: external_exports.string().optional(),
+      warnaAksen: external_exports.string().optional(),
+      backgroundImage1: external_exports.string().optional(),
+      backgroundImage2: external_exports.string().optional(),
+      backgroundImage3: external_exports.string().optional(),
+      backgroundAnimationSpeed: external_exports.number().optional(),
+      logoUrl: external_exports.string().optional(),
+      logoKecilUrl: external_exports.string().optional(),
+      faviconUrl: external_exports.string().optional(),
+      runningTextAktif: external_exports.number().optional(),
+      fontFamily: external_exports.string().optional(),
+      borderRadius: external_exports.string().optional()
+    })
+  ).mutation(async ({ input }) => {
+    const { id, ...data } = input;
+    const normalizedData = {
+      ...data,
+      borderRadius: normalizeBorderRadius(data.borderRadius),
+      warnaSkunder: input.warnaSkunder ?? input.warnaSekunder,
+      warnaAccent: input.warnaAccent ?? input.warnaAksen
+    };
+    delete normalizedData.warnaSekunder;
+    delete normalizedData.warnaAksen;
+    await db().update(temaWebsite).set(normalizedData).where(eq(temaWebsite.id, id));
+    return { id, ...normalizedData };
+  }),
+  delete: adminQuery.input(external_exports.object({ id: external_exports.number() })).mutation(async ({ input }) => {
+    await db().delete(temaWebsite).where(eq(temaWebsite.id, input.id));
+    return { success: true };
   })
 });
 var dusunRouter = createRouter({
@@ -47846,10 +47846,10 @@ var dusunRouter = createRouter({
   }),
   create: adminQuery.input(
     external_exports.object({
-      nama: external_exports.string().min(1).max(255),
+      nama: external_exports.string(),
+      pejabat: external_exports.string(),
+      fotoUrl: external_exports.string().optional(),
       deskripsi: external_exports.string().optional(),
-      kepala: external_exports.string().optional(),
-      kontak: external_exports.string().optional(),
       urutan: external_exports.number().optional()
     })
   ).mutation(async ({ input }) => {
@@ -47859,10 +47859,10 @@ var dusunRouter = createRouter({
   update: adminQuery.input(
     external_exports.object({
       id: external_exports.number(),
-      nama: external_exports.string().min(1).max(255).optional(),
+      nama: external_exports.string().optional(),
+      pejabat: external_exports.string().optional(),
+      fotoUrl: external_exports.string().optional(),
       deskripsi: external_exports.string().optional(),
-      kepala: external_exports.string().optional(),
-      kontak: external_exports.string().optional(),
       urutan: external_exports.number().optional()
     })
   ).mutation(async ({ input }) => {
@@ -47875,7 +47875,7 @@ var dusunRouter = createRouter({
     return { success: true };
   })
 });
-var jabatanRouter = createRouter({
+var jabatanDesaRouter = createRouter({
   list: publicQuery.query(async () => {
     return db().select().from(jabatanDesa).orderBy(asc(jabatanDesa.urutan));
   }),
@@ -47885,10 +47885,7 @@ var jabatanRouter = createRouter({
   }),
   create: adminQuery.input(
     external_exports.object({
-      nama: external_exports.string().min(1).max(255),
-      pejabat: external_exports.string().min(1).max(255),
-      fotoUrl: external_exports.string().optional(),
-      deskripsi: external_exports.string().optional(),
+      nama: external_exports.string(),
       urutan: external_exports.number().optional()
     })
   ).mutation(async ({ input }) => {
@@ -47898,10 +47895,7 @@ var jabatanRouter = createRouter({
   update: adminQuery.input(
     external_exports.object({
       id: external_exports.number(),
-      nama: external_exports.string().min(1).max(255).optional(),
-      pejabat: external_exports.string().min(1).max(255).optional(),
-      fotoUrl: external_exports.string().optional(),
-      deskripsi: external_exports.string().optional(),
+      nama: external_exports.string().optional(),
       urutan: external_exports.number().optional()
     })
   ).mutation(async ({ input }) => {
@@ -47911,50 +47905,6 @@ var jabatanRouter = createRouter({
   }),
   delete: adminQuery.input(external_exports.object({ id: external_exports.number() })).mutation(async ({ input }) => {
     await db().delete(jabatanDesa).where(eq(jabatanDesa.id, input.id));
-    return { success: true };
-  })
-});
-var runningTextRouter = createRouter({
-  list: publicQuery.query(async () => {
-    return db().select().from(runningText).where(eq(runningText.aktif, 1)).orderBy(asc(runningText.urutan));
-  }),
-  getAll: adminQuery.query(async () => {
-    return db().select().from(runningText).orderBy(asc(runningText.urutan));
-  }),
-  getById: publicQuery.input(external_exports.object({ id: external_exports.number() })).query(async ({ input }) => {
-    const rows = await db().select().from(runningText).where(eq(runningText.id, input.id));
-    return rows[0] || null;
-  }),
-  create: adminQuery.input(
-    external_exports.object({
-      teks: external_exports.string().min(1),
-      warna: external_exports.string().regex(/^#[0-9A-F]{6}$/i).optional(),
-      backgroundColor: external_exports.string().regex(/^#[0-9A-F]{6}$/i).optional(),
-      kecepatan: external_exports.number().optional(),
-      aktif: external_exports.number().optional(),
-      urutan: external_exports.number().optional()
-    })
-  ).mutation(async ({ input }) => {
-    const result = await db().insert(runningText).values(input);
-    return { id: Number(result[0]?.insertId ?? 0), ...input };
-  }),
-  update: adminQuery.input(
-    external_exports.object({
-      id: external_exports.number(),
-      teks: external_exports.string().optional(),
-      warna: external_exports.string().regex(/^#[0-9A-F]{6}$/i).optional(),
-      backgroundColor: external_exports.string().regex(/^#[0-9A-F]{6}$/i).optional(),
-      kecepatan: external_exports.number().optional(),
-      aktif: external_exports.number().optional(),
-      urutan: external_exports.number().optional()
-    })
-  ).mutation(async ({ input }) => {
-    const { id, ...data } = input;
-    await db().update(runningText).set(data).where(eq(runningText.id, id));
-    return { id, ...data };
-  }),
-  delete: adminQuery.input(external_exports.object({ id: external_exports.number() })).mutation(async ({ input }) => {
-    await db().delete(runningText).where(eq(runningText.id, input.id));
     return { success: true };
   })
 });
@@ -47968,8 +47918,8 @@ var jabatanSotkRouter = createRouter({
   }),
   create: adminQuery.input(
     external_exports.object({
-      namaJabatan: external_exports.string().min(1),
-      pejabatNama: external_exports.string().min(1),
+      namaJabatan: external_exports.string(),
+      pejabatNama: external_exports.string(),
       fotoUrl: external_exports.string().optional(),
       deskripsi: external_exports.string().optional(),
       parentId: external_exports.number().nullable().optional(),
@@ -48009,8 +47959,8 @@ var dusunSotkRouter = createRouter({
   }),
   create: adminQuery.input(
     external_exports.object({
-      namaDusun: external_exports.string().min(1),
-      kepala: external_exports.string().min(1),
+      namaDusun: external_exports.string(),
+      kepala: external_exports.string(),
       fotoKepala: external_exports.string().optional(),
       deskripsi: external_exports.string().optional(),
       urutan: external_exports.number().optional()
@@ -48038,111 +47988,50 @@ var dusunSotkRouter = createRouter({
     return { success: true };
   })
 });
-var dashboardRouter = createRouter({
-  stats: adminQuery.query(async () => {
-    const db_instance = db();
-    const [beritaCount] = await db_instance.select({ count: sql`count(*)` }).from(berita);
-    const [pengaduanCount] = await db_instance.select({ count: sql`count(*)` }).from(pengaduan);
-    const [umkmCount] = await db_instance.select({ count: sql`count(*)` }).from(umkm);
-    const [galeriCount] = await db_instance.select({ count: sql`count(*)` }).from(galeri);
-    const [lembagaCount] = await db_instance.select({ count: sql`count(*)` }).from(lembaga);
-    const [pengaduanBaru] = await db_instance.select({ count: sql`count(*)` }).from(pengaduan).where(eq(pengaduan.status, "baru"));
-    return {
-      totalBerita: beritaCount.count,
-      totalPengaduan: pengaduanCount.count,
-      totalUmkm: umkmCount.count,
-      totalGaleri: galeriCount.count,
-      totalLembaga: lembagaCount.count,
-      pengaduanBaru: pengaduanBaru.count
-    };
+var runningTextRouter = createRouter({
+  list: publicQuery.query(async () => {
+    return db().select().from(runningText).orderBy(desc(runningText.createdAt));
   }),
-  // Unique per device (cookie) per day
-  // NOTE: sementara dibuat tanpa filter tanggal untuk memastikan tidak 500.
-  // Setelah query stabil, kita kembalikan logic "per hari" yang benar.
-  visitsTotal: publicQuery.query(async () => {
-    try {
-      const rows = await db().select({ fingerprint: websiteVisits.fingerprint }).from(websiteVisits);
-      const unique = new Set(rows.map((r) => r.fingerprint));
-      return { total: unique.size };
-    } catch (err) {
-      throw new Error(
-        `[visitsTotal] website_visits query failed: ${err?.message ?? String(err)}`
-      );
-    }
+  getById: publicQuery.input(external_exports.object({ id: external_exports.number() })).query(async ({ input }) => {
+    const rows = await db().select().from(runningText).where(eq(runningText.id, input.id));
+    return rows[0] || null;
   }),
-  // Track visit once per day per fingerprint
-  visitsTrack: publicQuery.mutation(async ({ ctx }) => {
-    const req = ctx.req;
-    const resHeaders = ctx.resHeaders;
-    const visitDate = (/* @__PURE__ */ new Date()).toISOString().slice(0, 10);
-    const cookieHeader = req.headers.get("cookie") || "";
-    const userAgent = req.headers.get("user-agent") || "";
-    const VISITOR_COOKIE = "anon_visitor_id";
-    const anonMatch = cookieHeader.match(new RegExp(`${VISITOR_COOKIE}=([^;]+)`));
-    let anonId = anonMatch?.[1];
-    if (!anonId) {
-      const seed = `${Date.now()}_${userAgent}_${Math.random()}`;
-      anonId = createHash("sha256").update(seed).digest("hex").slice(0, 24);
-      resHeaders.append(
-        "set-cookie",
-        `${VISITOR_COOKIE}=${anonId}; Path=/; HttpOnly=false; SameSite=Lax; Max-Age=31536000`
-      );
-    }
-    const fingerprint = createHash("sha256").update(`${anonId}:${userAgent}`).digest("hex").slice(0, 64);
-    await db().insert(websiteVisits).values({
-      visitDate,
-      fingerprint
-    }).onDuplicateKeyUpdate({
-      set: { fingerprint: websiteVisits.fingerprint }
-    });
+  create: adminQuery.input(
+    external_exports.object({
+      teks: external_exports.string(),
+      warna: external_exports.string().optional(),
+      backgroundColor: external_exports.string().optional(),
+      kecepatan: external_exports.number().optional(),
+      aktif: external_exports.number().optional(),
+      urutan: external_exports.number().optional()
+    })
+  ).mutation(async ({ input }) => {
+    const result = await db().insert(runningText).values(input);
+    return { id: Number(result[0]?.insertId ?? 0), ...input };
+  }),
+  update: adminQuery.input(
+    external_exports.object({
+      id: external_exports.number(),
+      teks: external_exports.string().optional(),
+      warna: external_exports.string().optional(),
+      backgroundColor: external_exports.string().optional(),
+      kecepatan: external_exports.number().optional(),
+      aktif: external_exports.number().optional(),
+      urutan: external_exports.number().optional()
+    })
+  ).mutation(async ({ input }) => {
+    const { id, ...data } = input;
+    await db().update(runningText).set(data).where(eq(runningText.id, id));
+    return { id, ...data };
+  }),
+  delete: adminQuery.input(external_exports.object({ id: external_exports.number() })).mutation(async ({ input }) => {
+    await db().delete(runningText).where(eq(runningText.id, input.id));
     return { success: true };
   })
 });
 var pariwisataRouter = createRouter({
   list: publicQuery.query(async () => {
-    return db().select().from(pariwisata).orderBy(asc(pariwisata.urutan));
-  }),
-  reviews: createRouter({
-    listByPariwisataId: publicQuery.input(external_exports.object({ id: external_exports.number() })).query(async ({ input }) => {
-      return db().select().from(pariwisataReviews).where(eq(pariwisataReviews.pariwisataId, input.id)).orderBy(desc(pariwisataReviews.createdAt));
-    }),
-    create: authedQuery.input(
-      external_exports.object({
-        id: external_exports.number(),
-        rating: external_exports.number().min(1).max(5),
-        review: external_exports.string().min(1).max(2e3)
-      })
-    ).mutation(async ({ input, ctx }) => {
-      const user = ctx.user;
-      const unionId = user?.unionId;
-      if (!unionId) {
-        throw new Error("Missing user unionId");
-      }
-      const existing = await db().select().from(pariwisataReviews).where(
-        and(
-          eq(pariwisataReviews.pariwisataId, input.id),
-          eq(pariwisataReviews.unionId, unionId)
-        )
-      ).limit(1);
-      if (existing.length > 0) {
-        await db().update(pariwisataReviews).set({
-          rating: input.rating,
-          review: input.review
-        }).where(eq(pariwisataReviews.id, existing[0].id));
-      } else {
-        await db().insert(pariwisataReviews).values({
-          pariwisataId: input.id,
-          userId: user?.id,
-          unionId,
-          rating: input.rating,
-          review: input.review
-        });
-      }
-      const rows = await db().select({ avgRating: sql`AVG(${pariwisataReviews.rating})` }).from(pariwisataReviews).where(eq(pariwisataReviews.pariwisataId, input.id));
-      const avg = rows[0]?.avgRating ?? null;
-      await db().update(pariwisata).set({ rating: avg }).where(eq(pariwisata.id, input.id));
-      return { success: true };
-    })
+    return db().select().from(pariwisata).orderBy(desc(pariwisata.createdAt));
   }),
   getById: publicQuery.input(external_exports.object({ id: external_exports.number() })).query(async ({ input }) => {
     const rows = await db().select().from(pariwisata).where(eq(pariwisata.id, input.id));
@@ -48150,29 +48039,22 @@ var pariwisataRouter = createRouter({
   }),
   create: adminQuery.input(
     external_exports.object({
-      namaPenginapan: external_exports.string().min(1),
-      alamat: external_exports.string().min(1),
-      latitude: external_exports.string().optional(),
-      longitude: external_exports.string().optional(),
+      namaPenginapan: external_exports.string(),
+      alamat: external_exports.string(),
+      latitude: external_exports.number().optional(),
+      longitude: external_exports.number().optional(),
       deskripsi: external_exports.string().optional(),
-      fotoPenginapan: external_exports.array(external_exports.string()).default([]),
+      fotoPenginapan: external_exports.array(external_exports.string()).optional(),
       kontakWhatsapp: external_exports.string().optional(),
-      hargaMin: external_exports.string().optional(),
-      hargaMax: external_exports.string().optional(),
-      satuanHarga: external_exports.string().default("per malam"),
-      fasilitas: external_exports.array(external_exports.string()).default([]),
-      rating: external_exports.string().optional(),
-      urutan: external_exports.number().default(0)
+      hargaMin: external_exports.number().optional(),
+      hargaMax: external_exports.number().optional(),
+      satuanHarga: external_exports.string().optional(),
+      fasilitas: external_exports.array(external_exports.string()).optional(),
+      rating: external_exports.number().optional(),
+      urutan: external_exports.number().optional()
     })
   ).mutation(async ({ input }) => {
-    const result = await db().insert(pariwisata).values({
-      ...input,
-      latitude: input.latitude ? input.latitude : void 0,
-      longitude: input.longitude ? input.longitude : void 0,
-      hargaMin: input.hargaMin ? input.hargaMin : void 0,
-      hargaMax: input.hargaMax ? input.hargaMax : void 0,
-      rating: input.rating ? input.rating : void 0
-    });
+    const result = await db().insert(pariwisata).values(input);
     return { id: Number(result[0]?.insertId ?? 0), ...input };
   }),
   update: adminQuery.input(
@@ -48180,42 +48062,83 @@ var pariwisataRouter = createRouter({
       id: external_exports.number(),
       namaPenginapan: external_exports.string().optional(),
       alamat: external_exports.string().optional(),
-      latitude: external_exports.string().optional(),
-      longitude: external_exports.string().optional(),
+      latitude: external_exports.number().optional(),
+      longitude: external_exports.number().optional(),
       deskripsi: external_exports.string().optional(),
       fotoPenginapan: external_exports.array(external_exports.string()).optional(),
       kontakWhatsapp: external_exports.string().optional(),
-      hargaMin: external_exports.string().optional(),
-      hargaMax: external_exports.string().optional(),
+      hargaMin: external_exports.number().optional(),
+      hargaMax: external_exports.number().optional(),
       satuanHarga: external_exports.string().optional(),
       fasilitas: external_exports.array(external_exports.string()).optional(),
-      rating: external_exports.string().optional(),
+      rating: external_exports.number().optional(),
       urutan: external_exports.number().optional()
     })
   ).mutation(async ({ input }) => {
     const { id, ...data } = input;
     await db().update(pariwisata).set(data).where(eq(pariwisata.id, id));
-    return { success: true };
+    return { id, ...data };
   }),
   delete: adminQuery.input(external_exports.object({ id: external_exports.number() })).mutation(async ({ input }) => {
     await db().delete(pariwisata).where(eq(pariwisata.id, input.id));
     return { success: true };
   })
 });
+var pariwisataReviewsRouter = createRouter({
+  list: publicQuery.query(async () => {
+    return db().select().from(pariwisataReviews).orderBy(desc(pariwisataReviews.createdAt));
+  }),
+  getById: publicQuery.input(external_exports.object({ id: external_exports.number() })).query(async ({ input }) => {
+    const rows = await db().select().from(pariwisataReviews).where(eq(pariwisataReviews.id, input.id));
+    return rows[0] || null;
+  }),
+  create: authedQuery.input(
+    external_exports.object({
+      nama: external_exports.string(),
+      ulasan: external_exports.string(),
+      rating: external_exports.number().min(1).max(5),
+      pariwisataId: external_exports.number()
+    })
+  ).mutation(async ({ input, ctx }) => {
+    const result = await db().insert(pariwisataReviews).values({
+      pariwisataId: input.pariwisataId,
+      unionId: ctx.user.unionId,
+      rating: input.rating,
+      review: input.ulasan,
+      userId: ctx.user.id
+    });
+    return { id: Number(result[0]?.insertId ?? 0), ...input };
+  }),
+  update: adminQuery.input(
+    external_exports.object({
+      id: external_exports.number(),
+      ulasan: external_exports.string().optional(),
+      rating: external_exports.number().min(1).max(5).optional(),
+      pariwisataId: external_exports.number().optional()
+    })
+  ).mutation(async ({ input }) => {
+    const { id, ulasan, ...rest } = input;
+    const data = { ...rest };
+    if (ulasan !== void 0) data.review = ulasan;
+    await db().update(pariwisataReviews).set(data).where(eq(pariwisataReviews.id, id));
+    return { id, ...input };
+  }),
+  delete: adminQuery.input(external_exports.object({ id: external_exports.number() })).mutation(async ({ input }) => {
+    await db().delete(pariwisataReviews).where(eq(pariwisataReviews.id, input.id));
+    return { success: true };
+  })
+});
 var pendidikanRouter = createRouter({
   list: publicQuery.query(async () => {
-    return db().select().from(pendidikan).orderBy(asc(pendidikan.urutan));
+    return db().select().from(pendidikan).orderBy(desc(pendidikan.createdAt));
   }),
   getById: publicQuery.input(external_exports.object({ id: external_exports.number() })).query(async ({ input }) => {
     const rows = await db().select().from(pendidikan).where(eq(pendidikan.id, input.id));
     return rows[0] || null;
   }),
-  getByJenjang: publicQuery.input(external_exports.object({ jenjang: external_exports.string() })).query(async ({ input }) => {
-    return db().select().from(pendidikan).where(eq(pendidikan.jenjang, input.jenjang)).orderBy(asc(pendidikan.urutan));
-  }),
   create: adminQuery.input(
     external_exports.object({
-      namaSarana: external_exports.string().min(1),
+      namaSarana: external_exports.string(),
       jenjang: external_exports.enum([
         "paud",
         "tk",
@@ -48231,9 +48154,9 @@ var pendidikanRouter = createRouter({
         "s2",
         "s3"
       ]),
-      alamat: external_exports.string().min(1),
-      latitude: external_exports.string().optional(),
-      longitude: external_exports.string().optional(),
+      alamat: external_exports.string(),
+      latitude: external_exports.number().optional(),
+      longitude: external_exports.number().optional(),
       kepala: external_exports.string().optional(),
       kontakNomor: external_exports.string().optional(),
       kontakEmail: external_exports.string().optional(),
@@ -48243,7 +48166,7 @@ var pendidikanRouter = createRouter({
       jumlahSiswa: external_exports.number().optional(),
       tahunBerdiri: external_exports.number().optional(),
       statusAkreditasi: external_exports.string().optional(),
-      urutan: external_exports.number().default(0)
+      urutan: external_exports.number().optional()
     })
   ).mutation(async ({ input }) => {
     const result = await db().insert(pendidikan).values(input);
@@ -48269,8 +48192,8 @@ var pendidikanRouter = createRouter({
         "s3"
       ]).optional(),
       alamat: external_exports.string().optional(),
-      latitude: external_exports.string().optional(),
-      longitude: external_exports.string().optional(),
+      latitude: external_exports.number().optional(),
+      longitude: external_exports.number().optional(),
       kepala: external_exports.string().optional(),
       kontakNomor: external_exports.string().optional(),
       kontakEmail: external_exports.string().optional(),
@@ -48285,7 +48208,7 @@ var pendidikanRouter = createRouter({
   ).mutation(async ({ input }) => {
     const { id, ...data } = input;
     await db().update(pendidikan).set(data).where(eq(pendidikan.id, id));
-    return { success: true };
+    return { id, ...data };
   }),
   delete: adminQuery.input(external_exports.object({ id: external_exports.number() })).mutation(async ({ input }) => {
     await db().delete(pendidikan).where(eq(pendidikan.id, input.id));
@@ -48294,18 +48217,15 @@ var pendidikanRouter = createRouter({
 });
 var kesehatanRouter = createRouter({
   list: publicQuery.query(async () => {
-    return db().select().from(kesehatan).orderBy(asc(kesehatan.urutan));
+    return db().select().from(kesehatan).orderBy(desc(kesehatan.createdAt));
   }),
   getById: publicQuery.input(external_exports.object({ id: external_exports.number() })).query(async ({ input }) => {
     const rows = await db().select().from(kesehatan).where(eq(kesehatan.id, input.id));
     return rows[0] || null;
   }),
-  getByJenis: publicQuery.input(external_exports.object({ jenis: external_exports.string() })).query(async ({ input }) => {
-    return db().select().from(kesehatan).where(eq(kesehatan.jenis, input.jenis)).orderBy(asc(kesehatan.urutan));
-  }),
   create: adminQuery.input(
     external_exports.object({
-      namaSarana: external_exports.string().min(1),
+      namaSarana: external_exports.string(),
       jenis: external_exports.enum([
         "puskesmas",
         "poliklinik",
@@ -48316,9 +48236,9 @@ var kesehatanRouter = createRouter({
         "praktik_dokter",
         "praktik_bidan"
       ]),
-      alamat: external_exports.string().min(1),
-      latitude: external_exports.string().optional(),
-      longitude: external_exports.string().optional(),
+      alamat: external_exports.string(),
+      latitude: external_exports.number().optional(),
+      longitude: external_exports.number().optional(),
       pimpinan: external_exports.string().optional(),
       kontakNomor: external_exports.string().optional(),
       kontakEmail: external_exports.string().optional(),
@@ -48326,8 +48246,8 @@ var kesehatanRouter = createRouter({
       fotoUrl: external_exports.string().optional(),
       jamBuka: external_exports.string().optional(),
       jamTutup: external_exports.string().optional(),
-      layanan: external_exports.array(external_exports.string()).default([]),
-      urutan: external_exports.number().default(0)
+      layanan: external_exports.array(external_exports.string()).optional(),
+      urutan: external_exports.number().optional()
     })
   ).mutation(async ({ input }) => {
     const result = await db().insert(kesehatan).values(input);
@@ -48348,8 +48268,8 @@ var kesehatanRouter = createRouter({
         "praktik_bidan"
       ]).optional(),
       alamat: external_exports.string().optional(),
-      latitude: external_exports.string().optional(),
-      longitude: external_exports.string().optional(),
+      latitude: external_exports.number().optional(),
+      longitude: external_exports.number().optional(),
       pimpinan: external_exports.string().optional(),
       kontakNomor: external_exports.string().optional(),
       kontakEmail: external_exports.string().optional(),
@@ -48363,7 +48283,7 @@ var kesehatanRouter = createRouter({
   ).mutation(async ({ input }) => {
     const { id, ...data } = input;
     await db().update(kesehatan).set(data).where(eq(kesehatan.id, id));
-    return { success: true };
+    return { id, ...data };
   }),
   delete: adminQuery.input(external_exports.object({ id: external_exports.number() })).mutation(async ({ input }) => {
     await db().delete(kesehatan).where(eq(kesehatan.id, input.id));
@@ -48372,18 +48292,15 @@ var kesehatanRouter = createRouter({
 });
 var ekonomiRouter = createRouter({
   list: publicQuery.query(async () => {
-    return db().select().from(ekonomi).orderBy(asc(ekonomi.urutan));
+    return db().select().from(ekonomi).orderBy(desc(ekonomi.createdAt));
   }),
   getById: publicQuery.input(external_exports.object({ id: external_exports.number() })).query(async ({ input }) => {
     const rows = await db().select().from(ekonomi).where(eq(ekonomi.id, input.id));
     return rows[0] || null;
   }),
-  getByJenis: publicQuery.input(external_exports.object({ jenis: external_exports.string() })).query(async ({ input }) => {
-    return db().select().from(ekonomi).where(eq(ekonomi.jenis, input.jenis)).orderBy(asc(ekonomi.urutan));
-  }),
   create: adminQuery.input(
     external_exports.object({
-      namaSarana: external_exports.string().min(1),
+      namaSarana: external_exports.string(),
       jenis: external_exports.enum([
         "pasar",
         "toko",
@@ -48398,9 +48315,9 @@ var ekonomiRouter = createRouter({
         "perternakan",
         "perikanan"
       ]),
-      alamat: external_exports.string().min(1),
-      latitude: external_exports.string().optional(),
-      longitude: external_exports.string().optional(),
+      alamat: external_exports.string(),
+      latitude: external_exports.number().optional(),
+      longitude: external_exports.number().optional(),
       pimpinan: external_exports.string().optional(),
       kontakNomor: external_exports.string().optional(),
       kontakEmail: external_exports.string().optional(),
@@ -48408,8 +48325,8 @@ var ekonomiRouter = createRouter({
       fotoUrl: external_exports.string().optional(),
       jamBuka: external_exports.string().optional(),
       jamTutup: external_exports.string().optional(),
-      produk: external_exports.array(external_exports.string()).default([]),
-      urutan: external_exports.number().default(0)
+      produk: external_exports.array(external_exports.string()).optional(),
+      urutan: external_exports.number().optional()
     })
   ).mutation(async ({ input }) => {
     const result = await db().insert(ekonomi).values(input);
@@ -48434,8 +48351,8 @@ var ekonomiRouter = createRouter({
         "perikanan"
       ]).optional(),
       alamat: external_exports.string().optional(),
-      latitude: external_exports.string().optional(),
-      longitude: external_exports.string().optional(),
+      latitude: external_exports.number().optional(),
+      longitude: external_exports.number().optional(),
       pimpinan: external_exports.string().optional(),
       kontakNomor: external_exports.string().optional(),
       kontakEmail: external_exports.string().optional(),
@@ -48449,11 +48366,78 @@ var ekonomiRouter = createRouter({
   ).mutation(async ({ input }) => {
     const { id, ...data } = input;
     await db().update(ekonomi).set(data).where(eq(ekonomi.id, id));
-    return { success: true };
+    return { id, ...data };
   }),
   delete: adminQuery.input(external_exports.object({ id: external_exports.number() })).mutation(async ({ input }) => {
     await db().delete(ekonomi).where(eq(ekonomi.id, input.id));
     return { success: true };
+  })
+});
+var dashboardRouter = createRouter({
+  stats: adminQuery.query(async () => {
+    const db_instance = db();
+    const [beritaCount] = await db_instance.select({ count: sql`count(*)` }).from(berita);
+    const [pengaduanCount] = await db_instance.select({ count: sql`count(*)` }).from(pengaduan);
+    const [umkmCount] = await db_instance.select({ count: sql`count(*)` }).from(umkm);
+    const [galeriCount] = await db_instance.select({ count: sql`count(*)` }).from(galeri);
+    const [lembagaCount] = await db_instance.select({ count: sql`count(*)` }).from(lembaga);
+    const [pengaduanBaru] = await db_instance.select({ count: sql`count(*)` }).from(pengaduan).where(eq(pengaduan.status, "baru"));
+    return {
+      totalBerita: beritaCount.count,
+      totalPengaduan: pengaduanCount.count,
+      totalUmkm: umkmCount.count,
+      totalGaleri: galeriCount.count,
+      totalLembaga: lembagaCount.count,
+      pengaduanBaru: pengaduanBaru.count
+    };
+  }),
+  visitsTotal: publicQuery.query(async () => {
+    try {
+      const visitDate = (/* @__PURE__ */ new Date()).toISOString().slice(0, 10);
+      const rows = await db().select({ fingerprint: websiteVisits.fingerprint }).from(websiteVisits).where(eq(websiteVisits.visitDate, visitDate));
+      const unique = new Set(rows.map((r) => r.fingerprint));
+      return { total: unique.size };
+    } catch (err) {
+      throw new Error(
+        `[visitsTotal] website_visits query failed: ${err?.message ?? String(err)}`
+      );
+    }
+  }),
+  visitsTrack: publicQuery.mutation(async ({ ctx }) => {
+    const req = ctx.req;
+    const resHeaders = ctx.resHeaders;
+    const visitDate = (/* @__PURE__ */ new Date()).toISOString().slice(0, 10);
+    const cookieHeader = req.headers.get("cookie") || "";
+    const userAgent = req.headers.get("user-agent") || "";
+    const VISITOR_COOKIE = "anon_visitor_id";
+    const anonMatch = cookieHeader.match(new RegExp(`${VISITOR_COOKIE}=([^;]+)`));
+    let anonId = anonMatch?.[1];
+    if (!anonId) {
+      const seed = `${Date.now()}_${userAgent}_${Math.random()}`;
+      anonId = createHash("sha256").update(seed).digest("hex").slice(0, 24);
+      resHeaders.append(
+        "set-cookie",
+        `${VISITOR_COOKIE}=${anonId}; Path=/; HttpOnly=false; SameSite=Lax; Max-Age=31536000`
+      );
+    }
+    const fingerprint = createHash("sha256").update(`${anonId}:${userAgent}`).digest("hex").slice(0, 64);
+    await db().insert(websiteVisits).values({ visitDate, fingerprint }).onDuplicateKeyUpdate({
+      set: { fingerprint: websiteVisits.fingerprint }
+    });
+    return { success: true };
+  })
+});
+var websiteVisitsRouter = createRouter({
+  list: authedQuery.query(async () => {
+    return db().select().from(websiteVisits).orderBy(desc(websiteVisits.createdAt));
+  }),
+  create: publicQuery.input(external_exports.object({ ip: external_exports.string().optional() })).mutation(async ({ input }) => {
+    const result = await db().insert(websiteVisits).values({
+      visitDate: (/* @__PURE__ */ new Date()).toISOString().slice(0, 10),
+      // YYYY-MM-DD
+      fingerprint: createHash("sha256").update(input.ip || "").digest("hex")
+    });
+    return { id: Number(result[0]?.insertId ?? 0), ...input };
   })
 });
 var desaRouter = createRouter({
@@ -48468,24 +48452,75 @@ var desaRouter = createRouter({
   umkm: umkmRouter,
   pengaduan: pengaduanRouter,
   apbdes: apbdesRouter,
-  tema: temaRouter,
+  tema: { temaWebsite: temaWebsiteRouter },
   dusun: dusunRouter,
-  jabatan: jabatanRouter,
+  jabatanDesa: jabatanDesaRouter,
   runningText: runningTextRouter,
   jabatanSotk: jabatanSotkRouter,
   dusunSotk: dusunSotkRouter,
   pariwisata: pariwisataRouter,
+  pariwisataReviews: pariwisataReviewsRouter,
   pendidikan: pendidikanRouter,
   kesehatan: kesehatanRouter,
   ekonomi: ekonomiRouter,
-  dashboard: dashboardRouter
+  dashboard: dashboardRouter,
+  websiteVisits: websiteVisitsRouter
 });
 
-// api/router.ts
+// api/src/sotk-router.ts
+var db2 = () => getDb();
+function buildJabatanSotkTree(rows) {
+  const nodeMap = /* @__PURE__ */ new Map();
+  const roots = [];
+  for (const row of rows) {
+    nodeMap.set(row.id, { ...row, children: [] });
+  }
+  for (const row of rows) {
+    const treeNode = nodeMap.get(row.id);
+    const parentId = row.parentId;
+    if (parentId == null || parentId === 0) {
+      roots.push(treeNode);
+    } else {
+      const parent = nodeMap.get(parentId);
+      if (parent) parent.children.push(treeNode);
+      else roots.push(treeNode);
+    }
+  }
+  const sortRec = (node) => {
+    node.children.sort((a, b) => (a.urutan ?? 0) - (b.urutan ?? 0));
+    node.children.forEach(sortRec);
+  };
+  roots.sort((a, b) => (a.urutan ?? 0) - (b.urutan ?? 0));
+  roots.forEach(sortRec);
+  return roots;
+}
+var sotkRouter = createRouter({
+  jabatan: createRouter({
+    list: publicQuery.query(async () => {
+      return db2().select().from(jabatanSotk).orderBy(asc(jabatanSotk.urutan));
+    }),
+    tree: publicQuery.query(async () => {
+      const rows = await db2().select().from(jabatanSotk).orderBy(asc(jabatanSotk.urutan));
+      return buildJabatanSotkTree(rows);
+    }),
+    getById: publicQuery.input(external_exports.object({ id: external_exports.number() })).query(async ({ input }) => {
+      const rows = await db2().select().from(jabatanSotk).where(eq(jabatanSotk.id, input.id)).limit(1);
+      return rows[0] ?? null;
+    })
+  }),
+  dusun: createRouter({
+    list: publicQuery.query(async () => {
+      return db2().select().from(dusunSotk).orderBy(asc(dusunSotk.urutan));
+    })
+  })
+});
+
+// api/src/router.ts
 var appRouter = createRouter({
   ping: publicQuery.query(() => ({ ok: true, ts: Date.now() })),
   auth: authRouter,
-  desa: desaRouter
+  desa: desaRouter,
+  sotk: sotkRouter
 });
 
 // node_modules/hono/dist/utils/cookie.js
@@ -48583,7 +48618,7 @@ var setCookie = (c, name, value, opt) => {
   c.header("Set-Cookie", cookie3, { append: true });
 };
 
-// api/kimi/auth.ts
+// api/src/kimi/auth.ts
 var cookie2 = __toESM(require_dist(), 1);
 
 // contracts/errors.ts
@@ -49938,7 +49973,7 @@ var SignJWT = class {
   }
 };
 
-// api/kimi/session.ts
+// api/src/kimi/session.ts
 var JWT_ALG = "HS256";
 async function signSessionToken(payload) {
   const secret = new TextEncoder().encode(env.sessionSecret);
@@ -49966,7 +50001,7 @@ async function verifySessionToken(token) {
   }
 }
 
-// api/kimi/auth.ts
+// api/src/kimi/auth.ts
 async function authenticateRequest(headers) {
   const cookies = cookie2.parse(headers.get("cookie") || "");
   const token = cookies[Session.cookieName];
@@ -50012,7 +50047,7 @@ function createLoginHandler() {
   };
 }
 
-// api/context.ts
+// api/src/context.ts
 async function createContext(opts) {
   const ctx = { req: opts.req, resHeaders: opts.resHeaders };
   try {
@@ -50022,18 +50057,20 @@ async function createContext(opts) {
   return ctx;
 }
 
-// api/boot.ts
+// api/src/boot.ts
 var app = new Hono2();
 app.use(bodyLimit({ maxSize: 50 * 1024 * 1024 }));
 app.post("/api/login", createLoginHandler());
-app.all("/api/trpc/*", async (c) => {
+var handleTrpc = (c) => {
   return fetchRequestHandler({
     endpoint: "/api/trpc",
     req: c.req.raw,
     router: appRouter,
     createContext
   });
-});
+};
+app.all("/api/trpc", handleTrpc);
+app.all("/api/trpc/*", handleTrpc);
 app.all("/api/*", (c) => c.json({ error: "Not Found" }, 404));
 var boot_default = app;
 if (env.isProduction) {

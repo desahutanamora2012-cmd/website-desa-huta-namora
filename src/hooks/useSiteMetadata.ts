@@ -8,7 +8,8 @@ import { trpc } from "@/providers/trpc";
  */
 export function useSiteMetadata() {
   const { data: profilData } = trpc.desa.profil.list.useQuery();
-  const { data: temaData } = trpc.desa.tema.get.useQuery();
+  const { data: temaWebsite } = trpc.desa.tema.temaWebsite.list.useQuery();
+  const temaData = Array.isArray(temaWebsite) ? temaWebsite[0] : temaWebsite;
 
   useEffect(() => {
     if (!profilData) return;

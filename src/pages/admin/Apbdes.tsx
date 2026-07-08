@@ -20,15 +20,37 @@ export default function AdminApbdes() {
   const { data: apbdesList, isLoading } = trpc.desa.apbdes.list.useQuery();
 
   const create = trpc.desa.apbdes.create.useMutation({
-    onSuccess: () => { utils.desa.apbdes.list.invalidate(); utils.desa.apbdes.getLatest.invalidate(); setDialogOpen(false); resetForm(); toast.success("Berhasil ditambahkan!"); },
+    onSuccess: (data) => {
+      utils.desa.apbdes.list.setData(undefined, (prev: any[] | undefined) => [data, ...(prev ?? [])]);
+      utils.desa.apbdes.getLatest.setData(undefined, data as any);
+      utils.desa.apbdes.list.invalidate();
+      utils.desa.apbdes.getLatest.invalidate();
+      setDialogOpen(false);
+      resetForm();
+      toast.success("Berhasil ditambahkan!");
+    },
     onError: () => toast.error("Gagal menambahkan"),
   });
   const update = trpc.desa.apbdes.update.useMutation({
-    onSuccess: () => { utils.desa.apbdes.list.invalidate(); utils.desa.apbdes.getLatest.invalidate(); setDialogOpen(false); resetForm(); toast.success("Berhasil diperbarui!"); },
+    onSuccess: (data) => {
+      utils.desa.apbdes.list.setData(undefined, (prev: any[] | undefined) => (prev ?? []).map((item) => item.id === data.id ? { ...item, ...data } : item));
+      utils.desa.apbdes.getLatest.setData(undefined, data as any);
+      utils.desa.apbdes.list.invalidate();
+      utils.desa.apbdes.getLatest.invalidate();
+      setDialogOpen(false);
+      resetForm();
+      toast.success("Berhasil diperbarui!");
+    },
     onError: () => toast.error("Gagal memperbarui"),
   });
   const deleteMutation = trpc.desa.apbdes.delete.useMutation({
-    onSuccess: () => { utils.desa.apbdes.list.invalidate(); utils.desa.apbdes.getLatest.invalidate(); toast.success("Berhasil dihapus!"); },
+    onSuccess: (_data, variables) => {
+      utils.desa.apbdes.list.setData(undefined, (prev: any[] | undefined) => (prev ?? []).filter((item) => item.id !== variables.id));
+      utils.desa.apbdes.getLatest.setData(undefined, null);
+      utils.desa.apbdes.list.invalidate();
+      utils.desa.apbdes.getLatest.invalidate();
+      toast.success("Berhasil dihapus!");
+    },
     onError: () => toast.error("Gagal menghapus"),
   });
 

@@ -2,9 +2,10 @@ import { useMemo } from "react";
 import { trpc } from "@/providers/trpc";
 
 export function useDesaStatus() {
-  const { data: tema } = trpc.desa.tema.get.useQuery();
+  const { data: temaWebsite } = trpc.desa.tema.temaWebsite.list.useQuery();
 
-  const statusDesa = tema?.statusDesa || "desa";
+  const statusDesa = (Array.isArray(temaWebsite) ? temaWebsite[0] : temaWebsite)?.statusDesa || "desa";
+
 
   const labels = useMemo(
     () => ({

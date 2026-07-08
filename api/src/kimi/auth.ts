@@ -1,11 +1,11 @@
 import type { Context } from "hono";
 import { setCookie } from "hono/cookie";
 import * as cookie from "cookie";
-import { env } from "../lib/env.js";
-import { getSessionCookieOptions } from "../lib/cookies.js";
-import { Session } from "../../contracts/constants.js";
-import { Errors } from "../../contracts/errors.js";
-import { signSessionToken, verifySessionToken } from "./session.js";
+import { env } from "../lib/env.ts";
+import { getSessionCookieOptions } from "../lib/cookies.ts";
+import { Session } from "@contracts/constants.ts";
+import { Errors } from "@contracts/errors.ts";
+import { signSessionToken, verifySessionToken } from "./session.ts";
 import { findUserByUnionId, upsertUser } from "../queries/users.js";
 
 export async function authenticateRequest(headers: Headers) {
@@ -67,4 +67,3 @@ export function createLoginHandler() {
     return c.json({ success: true });
   };
 }
-

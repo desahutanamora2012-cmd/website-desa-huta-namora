@@ -1,6 +1,7 @@
 import { Hono } from "hono";
 import { bodyLimit } from "hono/body-limit";
 import type { HttpBindings } from "@hono/node-server";
+import type { Context } from "hono";
 import { fetchRequestHandler } from "@trpc/server/adapters/fetch";
 import { appRouter } from "./router.js";
 import { createContext } from "./context.js";
@@ -11,14 +12,16 @@ const app = new Hono<{ Bindings: HttpBindings }>();
 
 app.use(bodyLimit({ maxSize: 50 * 1024 * 1024 }));
 app.post("/api/login", createLoginHandler());
-app.all("/api/trpc/*", async (c) => {
+const handleTrpc = (c: Context<{ Bindings: HttpBindings }>) => {
   return fetchRequestHandler({
     endpoint: "/api/trpc",
     req: c.req.raw,
     router: appRouter,
     createContext,
   });
-});
+};
+app.all("/api/trpc", handleTrpc);
+app.all("/api/trpc/*", handleTrpc);
 app.all("/api/*", (c) => c.json({ error: "Not Found" }, 404));
 
 export default app;
