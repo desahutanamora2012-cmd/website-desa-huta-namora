@@ -1,6 +1,6 @@
 import { z } from "zod";
 import * as cookie from "cookie";
-import { Session } from "@contracts/constants.js";
+import { Session } from "../contracts/constants.js";
 import { getSessionCookieOptions } from "./lib/cookies.js";
 import { createRouter, authedQuery, publicQuery } from "./middleware.js";
 import { findUserByUsername, updateUserPassword } from "./queries/users.js";

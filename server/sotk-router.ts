@@ -6,7 +6,7 @@ import {
   dusunSotk,
   jabatanSotk,
   type JabatanSotk,
-} from "@db/schema.js";
+} from "../db/schema.js";
 
 const db = () => getDb();
 
