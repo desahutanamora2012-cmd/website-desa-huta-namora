@@ -105,6 +105,14 @@ export default function AdminPengaturan() {
     onError: () => toast.error("Gagal mengubah tema"),
   });
 
+  const createTema = trpc.desa.tema.temaWebsite.create.useMutation({
+    onSuccess: async () => {
+      await utils.desa.tema.temaWebsite.list.invalidate();
+      toast.success("Tema berhasil disimpan!");
+    },
+    onError: () => toast.error("Gagal menyimpan tema"),
+  });
+
   const [temaForm, setTemaForm] = useState({
     statusDesa: "desa" as "desa" | "kelurahan",
     tema: "light" as "light" | "dark" | "custom",
@@ -159,7 +167,7 @@ export default function AdminPengaturan() {
 
     // updateTema expects { id, ...data } (backend has input.id)
     if (!tema?.id) {
-      toast.error("Data tema belum tersedia");
+      createTema.mutate(cleanData as any);
       return;
     }
 

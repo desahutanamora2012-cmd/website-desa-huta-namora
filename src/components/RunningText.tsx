@@ -16,9 +16,18 @@ export default function RunningText() {
     return () => clearInterval(interval);
   }, [runningTextList]);
 
-  if (!runningTextList || runningTextList.length === 0) return null;
+  // Jangan kembalikan null agar VisitorWidget tetap tampil meskipun belum ada data di database
+  // if (!runningTextList || runningTextList.length === 0) return null;
 
-  const current = runningTextList[displayIndex];
+  const current = runningTextList && runningTextList.length > 0
+    ? runningTextList[displayIndex]
+    : {
+        teks: "Selamat Datang di Website Resmi Desa",
+        backgroundColor: "#dc2626",
+        warna: "#ffffff",
+        kecepatan: 50,
+      };
+
   const bg = current.backgroundColor || "#dc2626";
   const fg = current.warna || "#ffffff";
   const durationSeconds = (100 / (current.kecepatan || 50)) * 10;
