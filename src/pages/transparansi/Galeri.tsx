@@ -11,8 +11,9 @@ import {
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ImageIcon, Calendar } from "lucide-react";
-import { useState } from "react";
+import { ImageIcon, Calendar, ChevronLeft, ChevronRight } from "lucide-react";
+import { useState, useEffect } from "react";
+import SubmenuHeader from "@/components/SubmenuHeader";
 
 const kategoriLabels: Record<string, string> = {
   kegiatan: "Kegiatan",
@@ -29,10 +30,37 @@ export default function GaleriPage() {
   const [selectedKategori, setSelectedKategori] = useState("semua");
   const [selectedItem, setSelectedItem] = useState<any>(null);
 
-  const filtered =
-    selectedKategori === "semua"
-      ? galeriList
-      : galeriList?.filter((g) => g.kategori === selectedKategori);
+  const filtered = galeriList?.filter((g) => {
+    if (g.kategori === "infografis") return false;
+    if (selectedKategori === "semua") return true;
+    return g.kategori === selectedKategori;
+  });
+
+  // Slider State
+  const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
+
+  const getSlideImages = (item: any) => {
+    if (!item) return [];
+    const images = [item.gambarUrl];
+    if (item.fotoUrls && Array.isArray(item.fotoUrls)) {
+      images.push(...item.fotoUrls);
+    }
+    return images;
+  };
+
+  const slideImages = getSlideImages(selectedItem);
+
+  useEffect(() => {
+    if (!selectedItem || slideImages.length <= 1) return;
+    const interval = setInterval(() => {
+      setCurrentSlideIndex((prev) => (prev + 1) % slideImages.length);
+    }, 2000);
+    return () => clearInterval(interval);
+  }, [selectedItem, slideImages.length]);
+
+  useEffect(() => {
+    setCurrentSlideIndex(0);
+  }, [selectedItem]);
 
   const formatDate = (date: Date | string | null) => {
     if (!date) return "";
@@ -45,14 +73,10 @@ export default function GaleriPage() {
 
   return (
     <Layout>
-      <div className="bg-gradient-to-br from-emerald-700 to-teal-700 text-white py-12">
-        <div className="max-w-7xl mx-auto px-4">
-          <h1 className="text-3xl font-bold">Galeri & Infografis</h1>
-          <p className="text-emerald-100 mt-2">
-            Dokumentasi kegiatan dan publikasi desa
-          </p>
-        </div>
-      </div>
+      <SubmenuHeader 
+        title="Galeri Kegiatan" 
+        subtitle="Dokumentasi kegiatan dan publikasi desa" 
+      />
 
       <div className="max-w-7xl mx-auto px-4 py-10 space-y-8">
         {/* Filter Tabs */}
@@ -68,7 +92,7 @@ export default function GaleriPage() {
             >
               Semua
             </TabsTrigger>
-            {Object.entries(kategoriLabels).map(([key, label]) => (
+            {Object.entries(kategoriLabels).filter(([key]) => key !== "infografis").map(([key, label]) => (
               <TabsTrigger
                 key={key}
                 value={key}
@@ -130,18 +154,46 @@ export default function GaleriPage() {
 
       {/* Lightbox Dialog */}
       <Dialog open={!!selectedItem} onOpenChange={() => setSelectedItem(null)}>
-        <DialogContent className="max-w-4xl p-0 overflow-hidden">
+        <DialogContent className="max-w-5xl p-0 overflow-hidden bg-black/95 border-0">
           <DialogTitle className="sr-only">
             {selectedItem?.judul || "Preview"}
           </DialogTitle>
           {selectedItem && (
-            <div>
-              <img
-                src={selectedItem.gambarUrl}
-                alt={selectedItem.judul}
-                className="w-full max-h-[70vh] object-contain bg-black"
-              />
-              <div className="p-4">
+            <div className="relative">
+              <div className="flex items-center justify-center min-h-[50vh] max-h-[85vh] p-4 relative group">
+                <img
+                  src={slideImages[currentSlideIndex]}
+                  alt={`${selectedItem.judul} - ${currentSlideIndex + 1}`}
+                  className="max-w-full max-h-[80vh] object-contain transition-opacity duration-300"
+                />
+                
+                {slideImages.length > 1 && (
+                  <>
+                    <button 
+                      onClick={(e) => { e.stopPropagation(); setCurrentSlideIndex((prev) => prev === 0 ? slideImages.length - 1 : prev - 1); }}
+                      className="absolute left-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/80 text-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                    >
+                      <ChevronLeft className="w-6 h-6" />
+                    </button>
+                    <button 
+                      onClick={(e) => { e.stopPropagation(); setCurrentSlideIndex((prev) => (prev + 1) % slideImages.length); }}
+                      className="absolute right-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/80 text-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                    >
+                      <ChevronRight className="w-6 h-6" />
+                    </button>
+                    <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-1.5">
+                      {slideImages.map((_, idx) => (
+                        <button
+                          key={idx}
+                          onClick={(e) => { e.stopPropagation(); setCurrentSlideIndex(idx); }}
+                          className={`w-2 h-2 rounded-full transition-all ${idx === currentSlideIndex ? "bg-white scale-125" : "bg-white/50"}`}
+                        />
+                      ))}
+                    </div>
+                  </>
+                )}
+              </div>
+              <div className="bg-white p-4">
                 <Badge variant="secondary" className="mb-2">
                   {kategoriLabels[selectedItem.kategori] || selectedItem.kategori}
                 </Badge>

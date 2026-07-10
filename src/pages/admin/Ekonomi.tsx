@@ -367,8 +367,9 @@ export default function AdminEkonomi() {
                       value={produkInput}
                       onChange={(e) => setProdukInput(e.target.value)}
                       placeholder="Contoh: Beras, Telur, Daging Ayam"
-                      onKeyPress={(e) => {
+                      onKeyDown={(e) => {
                         if (e.key === "Enter") {
+                          e.preventDefault();
                           handleAddProduk();
                         }
                       }}

@@ -25,6 +25,7 @@ import {
   Pie,
   Cell,
 } from "recharts";
+import SubmenuHeader from "@/components/SubmenuHeader";
 
 const COLORS = ["#059669", "#0891b2", "#d97706", "#dc2626", "#7c3aed"];
 
@@ -57,14 +58,10 @@ export default function ApbdesPage() {
 
   return (
     <Layout>
-      <div className="bg-gradient-to-br from-emerald-700 to-teal-700 text-white py-12">
-        <div className="max-w-7xl mx-auto px-4">
-          <h1 className="text-3xl font-bold">Transparansi APBDes</h1>
-          <p className="text-emerald-100 mt-2">
-            Anggaran Pendapatan dan Belanja Desa Tahun {tahun}
-          </p>
-        </div>
-      </div>
+      <SubmenuHeader 
+        title={apbdesData?.judul || "Transparansi APBDes"} 
+        subtitle={`Anggaran Pendapatan dan Belanja Desa Tahun ${tahun}`} 
+      />
 
       <div className="max-w-7xl mx-auto px-4 py-10 space-y-8">
         {apbdesData ? (
@@ -216,21 +213,29 @@ export default function ApbdesPage() {
 
             {/* Dokumen URL */}
             {apbdesData.dokumenUrl && (
-              <Card className="border-0 shadow-sm">
-                <CardContent className="p-5 flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <FileText className="w-5 h-5 text-emerald-700" />
-                    <span className="text-sm font-medium">
-                      Dokumen Lengkap APBDes {tahun}
-                    </span>
+              <Card className="border-0 shadow-sm mt-8">
+                <CardHeader>
+                  <CardTitle className="text-sm flex items-center gap-2">
+                    <FileText className="w-4 h-4 text-emerald-700" />
+                    Dokumen Lengkap APBDes {tahun}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="w-full bg-gray-50 rounded-lg border border-gray-200 overflow-hidden mb-4">
+                    <iframe 
+                      src={apbdesData.dokumenUrl} 
+                      className="w-full h-[600px]"
+                      title={`Dokumen APBDes ${tahun}`}
+                    />
                   </div>
                   <a
                     href={apbdesData.dokumenUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-sm text-emerald-700 hover:text-emerald-800 font-medium"
+                    className="inline-flex items-center gap-2 text-sm text-emerald-700 hover:text-emerald-800 font-medium bg-emerald-50 hover:bg-emerald-100 transition-colors px-4 py-2 rounded-md"
                   >
-                    Unduh PDF
+                    <FileText className="w-4 h-4" />
+                    Buka di Tab Baru / Unduh PDF
                   </a>
                 </CardContent>
               </Card>

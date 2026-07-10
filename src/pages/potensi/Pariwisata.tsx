@@ -10,24 +10,30 @@ import { Navigation, Pagination, Autoplay, A11y } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
+import SubmenuHeader from "@/components/SubmenuHeader";
 
-export default function PariwisataPage() {
+export default function PariwisataPage({ type }: { type?: "penginapan" | "objek_wisata" }) {
   const { data: pariwisataList } = trpc.desa.pariwisata.list.useQuery();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedItem, setSelectedItem] = useState<any>(null);
 
   const filtered = useMemo(() => {
     if (!pariwisataList) return [];
-    const q = searchQuery.trim().toLowerCase();
-    if (!q) return pariwisataList;
-
+    
     return pariwisataList.filter((item) => {
+      // 1. Filter Kategori
+      if (type && item.kategori !== type) return false;
+      
+      // 2. Filter Pencarian
+      const q = searchQuery.trim().toLowerCase();
+      if (!q) return true;
+
       const nameOk = (item.namaPenginapan || "").toLowerCase().includes(q);
       const addrOk = (item.alamat || "").toLowerCase().includes(q);
       const fasilitasOk = (item.fasilitas || []).some((f: string) => (f || "").toLowerCase().includes(q));
       return nameOk || addrOk || fasilitasOk;
     });
-  }, [pariwisataList, searchQuery]);
+  }, [pariwisataList, searchQuery, type]);
 
   const openWhatsApp = (nomor: string) => {
     const phoneNumber = (nomor || "").replace(/\D/g, "");
@@ -37,22 +43,17 @@ export default function PariwisataPage() {
 
   return (
     <Layout>
-      <div className="bg-gradient-to-br from-emerald-700 via-teal-600 to-cyan-700 text-white py-16">
-        <div className="max-w-7xl mx-auto px-4">
-          <h1 className="text-4xl md:text-5xl font-bold mb-4">Pariwisata & Penginapan</h1>
-          <p className="text-emerald-100 text-lg max-w-2xl">
-            Temukan berbagai pilihan penginapan nyaman di desa kami dengan fasilitas lengkap dan harga terjangkau.
-            Nikmati pengalaman menginap yang tak terlupakan di tengah keindahan alam pedesaan.
-          </p>
-        </div>
-      </div>
+      <SubmenuHeader 
+        title={type === "objek_wisata" ? "Objek Wisata" : "Pariwisata & Penginapan"} 
+        subtitle={type === "objek_wisata" ? "Eksplorasi keindahan alam dan tempat menarik di desa kami" : "Temukan berbagai pilihan penginapan nyaman di desa kami dengan fasilitas lengkap"} 
+      />
 
       <div className="max-w-7xl mx-auto px-4 py-12">
         <div className="mb-12">
           <div className="relative">
             <Input
               type="text"
-              placeholder="Cari penginapan berdasarkan nama atau lokasi..."
+              placeholder={`Cari ${type === "objek_wisata" ? "objek wisata" : "penginapan"} berdasarkan nama atau lokasi...`}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full px-6 py-3 text-lg border-2 border-gray-200 rounded-lg focus:border-emerald-700 focus:outline-none"

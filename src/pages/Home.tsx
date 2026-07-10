@@ -15,9 +15,6 @@ import {
   Newspaper,
   ArrowRight,
   Calendar,
-  Sprout,
-  Store,
-  Phone,
 } from "lucide-react";
 
 export default function Home() {
@@ -29,7 +26,7 @@ export default function Home() {
   });
   const { data: lembagaList } = trpc.desa.lembaga.list.useQuery();
   const { data: galeriList } = trpc.desa.galeri.list.useQuery();
-    const { data: umkmList } = trpc.desa.umkm.list.useQuery();
+  const { data: umkmList } = trpc.desa.umkm.list.useQuery();
 
   const namaDesa = profil?.nama_desa || "Desa Cantik";
   const visi = profil?.visi || "";
@@ -46,45 +43,47 @@ export default function Home() {
   return (
     <Layout>
       {/* Hero Section */}
-      <section className="relative bg-gradient-to-br from-emerald-800 via-emerald-700 to-teal-700 text-white overflow-hidden">
-        <BackgroundCarousel />
-        <div className="relative max-w-7xl mx-auto px-4 py-20 lg:py-28">
-          <div className="max-w-2xl">
-            <div className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-sm rounded-full px-4 py-1.5 text-sm mb-6">
-              <span className="w-2 h-2 bg-emerald-300 rounded-full animate-pulse" />
+      <section className="relative bg-primary overflow-hidden min-h-[85vh] flex items-center">
+        <div className="absolute inset-0 z-0">
+          <BackgroundCarousel />
+        </div>
+        <div className="absolute inset-0 bg-gradient-to-t from-primary/95 via-primary/60 to-transparent z-0 mix-blend-multiply" />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-transparent z-0" />
+        
+        <div className="relative z-10 max-w-7xl mx-auto px-4 pt-16 pb-32 lg:pt-24 lg:pb-40 w-full text-center sm:text-left">
+          <div className="max-w-2xl mx-auto sm:mx-0">
+            <div className="inline-flex items-center gap-1.5 bg-white/10 backdrop-blur-md border border-white/20 rounded-full px-4 py-1.5 text-[10px] font-bold uppercase tracking-widest mb-6 shadow-xl text-white">
+              <span className="w-1.5 h-1.5 bg-accent rounded-full animate-pulse shadow-[0_0_8px_rgba(255,255,255,0.8)]" />
               Website Resmi Pemerintah Desa
             </div>
-            <h1 className="text-4xl lg:text-5xl font-bold mb-4 leading-tight">
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold mb-4 leading-[1.1] tracking-tight text-white drop-shadow-lg">
               Selamat Datang di<br />
-              <span className="text-emerald-200">{namaDesa}</span>
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-white via-white to-white/70">{namaDesa}</span>
             </h1>
-            <p className="text-lg text-emerald-100 mb-8 leading-relaxed">
+            <p className="text-base lg:text-lg text-white/90 mb-8 leading-relaxed font-medium max-w-xl mx-auto sm:mx-0 drop-shadow">
               {visi}
             </p>
-            {/* Quick actions (Profil Desa / Layanan Publik / Hubungi Kami) dihapus sesuai permintaan */}
           </div>
         </div>
       </section>
 
       {/* Statistics Cards */}
-      <section className="-mt-10 relative z-10 max-w-7xl mx-auto px-4">
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <section className="-mt-24 relative z-20 max-w-7xl mx-auto px-4 pb-16">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
           {/* Penduduk */}
-          <Card className="relative overflow-hidden border border-white/60 bg-white/60 backdrop-blur shadow-lg transition-all hover:shadow-xl hover:-translate-y-0.5">
-            <div className="absolute inset-0 bg-gradient-to-br from-emerald-600/15 via-emerald-100/20 to-white/0" />
-            <div className="absolute -right-12 -top-12 h-32 w-32 rounded-full bg-emerald-500/10 blur-xl" />
-            <div className="absolute inset-0 ring-1 ring-inset ring-white/35" />
+          <Card className="relative overflow-hidden border border-white/40 bg-white/80 backdrop-blur-xl shadow-[0_8px_30px_rgb(0,0,0,0.08)] transition-all hover:-translate-y-1.5 hover:shadow-[0_20px_40px_rgb(0,0,0,0.12)] hover:bg-white rounded-2xl group">
+            <div className="absolute -right-6 -top-6 h-20 w-20 rounded-full bg-primary/5 blur-xl group-hover:bg-primary/10 transition-colors" />
             <CardContent className="relative p-5">
-              <div className="flex items-center gap-4">
-                <div className="h-11 w-11 rounded-xl flex items-center justify-center bg-emerald-50/80 border border-emerald-100">
-                  <Users className="h-5 w-5 text-emerald-700" />
+              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
+                <div className="h-10 w-10 rounded-xl flex items-center justify-center bg-primary/10 text-primary shrink-0 group-hover:scale-110 transition-transform">
+                  <Users className="h-5 w-5" />
                 </div>
                 <div>
-                  <p className="text-3xl font-extrabold tracking-tight text-gray-900 leading-none">
+                  <p className="text-2xl font-extrabold tracking-tight text-gray-900 leading-none mb-1">
                     {statistik?.totalPenduduk?.toLocaleString("id-ID") || "0"}
                   </p>
-                  <p className="text-xs font-medium text-gray-600 mt-2">
-                    Jiwa Penduduk
+                  <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">
+                    Penduduk
                   </p>
                 </div>
               </div>
@@ -92,21 +91,19 @@ export default function Home() {
           </Card>
 
           {/* Luas Wilayah */}
-          <Card className="relative overflow-hidden border border-white/60 bg-white/60 backdrop-blur shadow-lg transition-all hover:shadow-xl hover:-translate-y-0.5">
-            <div className="absolute inset-0 bg-gradient-to-br from-blue-600/15 via-blue-100/20 to-white/0" />
-            <div className="absolute -right-12 -top-12 h-32 w-32 rounded-full bg-blue-500/10 blur-xl" />
-            <div className="absolute inset-0 ring-1 ring-inset ring-white/35" />
+          <Card className="relative overflow-hidden border border-white/40 bg-white/80 backdrop-blur-xl shadow-[0_8px_30px_rgb(0,0,0,0.08)] transition-all hover:-translate-y-1.5 hover:shadow-[0_20px_40px_rgb(0,0,0,0.12)] hover:bg-white rounded-2xl group">
+            <div className="absolute -right-6 -top-6 h-20 w-20 rounded-full bg-blue-500/5 blur-xl group-hover:bg-blue-500/10 transition-colors" />
             <CardContent className="relative p-5">
-              <div className="flex items-center gap-4">
-                <div className="h-11 w-11 rounded-xl flex items-center justify-center bg-blue-50/80 border border-blue-100">
-                  <MapPin className="h-5 w-5 text-blue-700" />
+              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
+                <div className="h-10 w-10 rounded-xl flex items-center justify-center bg-blue-50 text-blue-600 shrink-0 group-hover:scale-110 transition-transform">
+                  <MapPin className="h-5 w-5" />
                 </div>
                 <div>
-                  <p className="text-3xl font-extrabold tracking-tight text-gray-900 leading-none">
+                  <p className="text-2xl font-extrabold tracking-tight text-gray-900 leading-none mb-1">
                     {statistik?.luasWilayah || "0"}
                   </p>
-                  <p className="text-xs font-medium text-gray-600 mt-2">
-                    Ha Luas Wilayah
+                  <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">
+                    Ha Wilayah
                   </p>
                 </div>
               </div>
@@ -114,20 +111,18 @@ export default function Home() {
           </Card>
 
           {/* Kepala Keluarga */}
-          <Card className="relative overflow-hidden border border-white/60 bg-white/60 backdrop-blur shadow-lg transition-all hover:shadow-xl hover:-translate-y-0.5">
-            <div className="absolute inset-0 bg-gradient-to-br from-orange-600/15 via-orange-100/20 to-white/0" />
-            <div className="absolute -right-12 -top-12 h-32 w-32 rounded-full bg-orange-500/10 blur-xl" />
-            <div className="absolute inset-0 ring-1 ring-inset ring-white/35" />
+          <Card className="relative overflow-hidden border border-white/40 bg-white/80 backdrop-blur-xl shadow-[0_8px_30px_rgb(0,0,0,0.08)] transition-all hover:-translate-y-1.5 hover:shadow-[0_20px_40px_rgb(0,0,0,0.12)] hover:bg-white rounded-2xl group">
+            <div className="absolute -right-6 -top-6 h-20 w-20 rounded-full bg-orange-500/5 blur-xl group-hover:bg-orange-500/10 transition-colors" />
             <CardContent className="relative p-5">
-              <div className="flex items-center gap-4">
-                <div className="h-11 w-11 rounded-xl flex items-center justify-center bg-orange-50/80 border border-orange-100">
-                  <Building2 className="h-5 w-5 text-orange-700" />
+              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
+                <div className="h-10 w-10 rounded-xl flex items-center justify-center bg-orange-50 text-orange-600 shrink-0 group-hover:scale-110 transition-transform">
+                  <Building2 className="h-5 w-5" />
                 </div>
                 <div>
-                  <p className="text-3xl font-extrabold tracking-tight text-gray-900 leading-none">
+                  <p className="text-2xl font-extrabold tracking-tight text-gray-900 leading-none mb-1">
                     {statistik?.totalKK?.toLocaleString("id-ID") || "0"}
                   </p>
-                  <p className="text-xs font-medium text-gray-600 mt-2">
+                  <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">
                     Kepala Keluarga
                   </p>
                 </div>
@@ -136,21 +131,19 @@ export default function Home() {
           </Card>
 
           {/* Dusun */}
-          <Card className="relative overflow-hidden border border-white/60 bg-white/60 backdrop-blur shadow-lg transition-all hover:shadow-xl hover:-translate-y-0.5">
-            <div className="absolute inset-0 bg-gradient-to-br from-purple-600/15 via-purple-100/20 to-white/0" />
-            <div className="absolute -right-12 -top-12 h-32 w-32 rounded-full bg-purple-500/10 blur-xl" />
-            <div className="absolute inset-0 ring-1 ring-inset ring-white/35" />
+          <Card className="relative overflow-hidden border border-white/40 bg-white/80 backdrop-blur-xl shadow-[0_8px_30px_rgb(0,0,0,0.08)] transition-all hover:-translate-y-1.5 hover:shadow-[0_20px_40px_rgb(0,0,0,0.12)] hover:bg-white rounded-2xl group">
+            <div className="absolute -right-6 -top-6 h-20 w-20 rounded-full bg-purple-500/5 blur-xl group-hover:bg-purple-500/10 transition-colors" />
             <CardContent className="relative p-5">
-              <div className="flex items-center gap-4">
-                <div className="h-11 w-11 rounded-xl flex items-center justify-center bg-purple-50/80 border border-purple-100">
-                  <TrendingUp className="h-5 w-5 text-purple-700" />
+              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
+                <div className="h-10 w-10 rounded-xl flex items-center justify-center bg-purple-50 text-purple-600 shrink-0 group-hover:scale-110 transition-transform">
+                  <TrendingUp className="h-5 w-5" />
                 </div>
                 <div>
-                  <p className="text-3xl font-extrabold tracking-tight text-gray-900 leading-none">
+                  <p className="text-2xl font-extrabold tracking-tight text-gray-900 leading-none mb-1">
                     {statistik?.jumlahDusun || "0"}
                   </p>
-                  <p className="text-xs font-medium text-gray-600 mt-2">
-                    Dusun
+                  <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">
+                    Jumlah Dusun
                   </p>
                 </div>
               </div>
@@ -159,23 +152,22 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Berita (pengganti Layanan & Informasi) */}
-      <section className="py-16 bg-gradient-to-b from-white via-white to-gray-50">
+      {/* Berita (Kabar & Pengumuman) */}
+      <section className="py-20 bg-transparent relative z-10 -mt-10">
         <div className="max-w-7xl mx-auto px-4">
-          <div className="flex items-center justify-between mb-8 gap-6">
+          <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-10 gap-6">
             <div>
-              <h2 className="text-2xl font-bold text-gray-900">
-                Informasi dari Berita
+              <h2 className="text-3xl font-extrabold text-gray-900 tracking-tight">
+                Kabar Terbaru
               </h2>
-              <p className="text-gray-500 mt-1">
-                Kabar & pengumuman terbaru desa
+              <p className="text-gray-500 mt-2 font-medium">
+                Informasi dan pengumuman resmi dari pemerintah desa
               </p>
             </div>
-
             <Link to="/berita">
               <Button
                 variant="outline"
-                className="hidden sm:flex border-gray-200 bg-white/70 hover:bg-white"
+                className="hidden sm:flex border-primary/20 text-primary hover:bg-primary hover:text-primary-foreground rounded-xl px-6 font-semibold transition-colors"
               >
                 Lihat Semua
                 <ArrowRight className="w-4 h-4 ml-2" />
@@ -184,316 +176,222 @@ export default function Home() {
           </div>
 
           {beritaList && beritaList.length > 0 ? (
-            <>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                {beritaList.slice(0, 2).map((berita) => (
-                  <Link key={berita.id} to={`/berita/${berita.slug}`}>
-                    <Card className="border-0 shadow-sm hover:shadow-lg transition-all cursor-pointer h-full overflow-hidden group">
-                      <div className="relative h-40 overflow-hidden">
-                        <img
-                          src={
-                            berita.gambarSampul ||
-                            "https://images.unsplash.com/photo-1497436072909-60f360e1d4b1?w=800"
-                          }
-                          alt={berita.judul}
-                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                        />
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/55 to-transparent" />
-                        <div className="absolute top-3 left-3">
-                          <span
-                            className={`text-[10px] px-2 py-0.5 rounded-full font-medium ${
-                              berita.kategori === "pengumuman"
-                                ? "bg-orange-100 text-orange-700"
-                                : berita.kategori === "berita"
-                                  ? "bg-blue-100 text-blue-700"
-                                  : "bg-emerald-100 text-emerald-700"
-                            }`}
-                          >
-                            {berita.kategori === "kabar_desa"
-                              ? "Kabar Desa"
-                              : berita.kategori === "pengumuman"
-                                ? "Pengumuman"
-                                : "Berita"}
-                          </span>
-                        </div>
-                        <div className="absolute bottom-3 left-3 right-3 text-white/90 flex items-center gap-2">
-                          <Calendar className="w-3 h-3" />
-                          <span className="text-[12px]">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {beritaList.map((berita, index) => (
+                <Link key={berita.id} to={`/berita/${berita.slug}`} className={`group ${index < 2 ? 'md:col-span-2 lg:col-span-2' : 'lg:col-span-1'}`}>
+                  <Card className="border-0 shadow-sm hover:shadow-[0_20px_40px_rgb(0,0,0,0.08)] transition-all cursor-pointer h-full overflow-hidden rounded-2xl bg-white relative">
+                    <div className={`relative overflow-hidden ${index < 2 ? 'h-64' : 'h-48'}`}>
+                      <img
+                        src={
+                          berita.gambarSampul ||
+                          "https://images.unsplash.com/photo-1497436072909-60f360e1d4b1?w=800"
+                        }
+                        alt={berita.judul}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-gray-900/90 via-gray-900/20 to-transparent" />
+                      
+                      <div className="absolute top-4 left-4">
+                        <span
+                          className={`text-xs px-3 py-1 rounded-full font-bold shadow-sm backdrop-blur-md border border-white/20 ${
+                            berita.kategori === "pengumuman"
+                              ? "bg-orange-500/90 text-white"
+                              : berita.kategori === "berita"
+                                ? "bg-blue-500/90 text-white"
+                                : "bg-primary/90 text-white"
+                          }`}
+                        >
+                          {berita.kategori === "kabar_desa" ? "Kabar Desa" : berita.kategori === "pengumuman" ? "Pengumuman" : "Berita"}
+                        </span>
+                      </div>
+                      
+                      <div className="absolute bottom-4 left-4 right-4">
+                        <div className="flex items-center gap-2 text-white/80 mb-2">
+                          <Calendar className="w-3.5 h-3.5" />
+                          <span className="text-[11px] font-medium tracking-wide uppercase">
                             {formatDate(berita.tanggalPublish)}
                           </span>
                         </div>
-                      </div>
-
-                      <CardContent className="p-4">
-                        <h3 className="font-semibold text-sm text-gray-900 line-clamp-2 group-hover:text-emerald-700 transition-colors">
+                        <h3 className={`font-bold text-white leading-snug group-hover:text-primary-100 transition-colors ${index < 2 ? 'text-xl line-clamp-2' : 'text-base line-clamp-2'}`}>
                           {berita.judul}
                         </h3>
-                      </CardContent>
-                    </Card>
-                  </Link>
-                ))}
-              </div>
+                      </div>
+                    </div>
+                  </Card>
+                </Link>
+              ))}
+            </div>
+          ) : (
+            <Card className="border border-dashed border-gray-300 bg-white shadow-sm rounded-2xl">
+              <CardContent className="p-10 text-center flex flex-col items-center">
+                <div className="h-16 w-16 rounded-full bg-primary/5 flex items-center justify-center mb-4">
+                  <Newspaper className="h-8 w-8 text-primary/40" />
+                </div>
+                <h3 className="font-bold text-lg text-gray-900">Belum ada publikasi</h3>
+                <p className="text-gray-500 mt-2 max-w-md">Silakan tambahkan data berita atau pengumuman melalui panel Admin agar tampil di beranda.</p>
+              </CardContent>
+            </Card>
+          )}
 
-              <div className="mt-6 flex sm:hidden">
-                <Link to="/berita">
-                  <Button className="w-full bg-emerald-600 hover:bg-emerald-700">
+          <div className="mt-8 sm:hidden">
+            <Link to="/berita">
+              <Button className="w-full rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground font-semibold">
+                Lihat Semua Berita
+                <ArrowRight className="w-4 h-4 ml-2" />
+              </Button>
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* Gallery & UMKM Combined Section */}
+      <section className="py-20 bg-white">
+        <div className="max-w-7xl mx-auto px-4">
+          
+          {/* Gallery Preview */}
+          {galeriList && galeriList.length > 0 && (
+            <div className="mb-24">
+              <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-10 gap-6">
+                <div>
+                  <h2 className="text-3xl font-extrabold text-gray-900 tracking-tight">Galeri Visual</h2>
+                  <p className="text-gray-500 mt-2 font-medium">Dokumentasi momen dan kegiatan desa</p>
+                </div>
+                <Link to="/transparansi/galeri">
+                  <Button variant="outline" className="hidden sm:flex rounded-xl font-semibold hover:bg-primary hover:text-white border-gray-200">
                     Lihat Semua
                     <ArrowRight className="w-4 h-4 ml-2" />
                   </Button>
                 </Link>
               </div>
-            </>
-          ) : (
-            <div className="mt-2">
-              <Card className="border border-gray-200 bg-white/70 backdrop-blur shadow-sm">
-                <CardContent className="p-6">
-                  <div className="flex items-start gap-3">
-                    <div className="h-10 w-10 rounded-xl bg-emerald-50 border border-emerald-100 flex items-center justify-center">
-                      <Newspaper className="h-5 w-5 text-emerald-700" />
-                    </div>
-                    <div>
-                      <h3 className="font-semibold text-gray-900">
-                        Belum ada berita atau pengumuman
-                      </h3>
-                      <p className="text-sm text-gray-500 mt-1">
-                        Silakan tambahkan data berita/pengumuman melalui Admin supaya tampil di beranda.
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                {galeriList.slice(0, 4).map((item, index) => (
+                  <div
+                    key={item.id}
+                    className={`relative group overflow-hidden rounded-2xl ${index === 0 || index === 3 ? 'aspect-square md:aspect-[3/4]' : 'aspect-square md:aspect-square'}`}
+                  >
+                    <img
+                      src={item.gambarUrl}
+                      alt={item.judul}
+                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-in-out"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-gray-900/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                    <div className="absolute bottom-0 left-0 right-0 p-5 translate-y-4 group-hover:translate-y-0 opacity-0 group-hover:opacity-100 transition-all duration-300">
+                      <p className="text-white text-sm font-bold leading-tight">
+                        {item.judul}
                       </p>
-                      <div className="mt-4">
-                        <Link to="/berita">
-                          <Button className="bg-emerald-600 hover:bg-emerald-700">
-                            Lihat semua Berita
-                            <ArrowRight className="w-4 h-4 ml-2" />
-                          </Button>
-                        </Link>
-                      </div>
                     </div>
                   </div>
-                </CardContent>
-              </Card>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* UMKM Preview */}
+          {umkmList && umkmList.length > 0 && (
+            <div>
+              <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-10 gap-6">
+                <div>
+                  <h2 className="text-3xl font-extrabold text-gray-900 tracking-tight">Produk Unggulan</h2>
+                  <p className="text-gray-500 mt-2 font-medium">Karya dan kreasi UMKM lokal</p>
+                </div>
+                <Link to="/potensi/umkm">
+                  <Button variant="outline" className="hidden sm:flex rounded-xl font-semibold hover:bg-primary hover:text-white border-gray-200">
+                    Lihat Katalog
+                    <ArrowRight className="w-4 h-4 ml-2" />
+                  </Button>
+                </Link>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                {umkmList.map((item) => (
+                  <Card
+                    key={item.id}
+                    className="border border-gray-100 shadow-sm hover:shadow-xl transition-all overflow-hidden rounded-2xl group bg-gray-50/50"
+                  >
+                    <div className="h-48 overflow-hidden relative p-3">
+                      <img
+                        src={
+                          item.fotoUrl ||
+                          "https://images.unsplash.com/photo-1556761175-5973dc0f32e7?w=400"
+                        }
+                        alt={item.namaProduk}
+                        className="w-full h-full object-cover rounded-xl group-hover:scale-105 transition-transform duration-500"
+                      />
+                    </div>
+                    <CardContent className="p-5 pt-2">
+                      <span className="text-[10px] px-2.5 py-1 bg-primary/10 text-primary rounded-full font-bold uppercase tracking-wider">
+                        {item.kategori}
+                      </span>
+                      <h3 className="font-bold text-base text-gray-900 mt-3 group-hover:text-primary transition-colors">
+                        {item.namaProduk}
+                      </h3>
+                      {item.namaUsaha && (
+                        <p className="text-sm text-gray-500 mt-1 font-medium">
+                          {item.namaUsaha}
+                        </p>
+                      )}
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
             </div>
           )}
         </div>
       </section>
 
-      {/* Latest News */}
-      {beritaList && beritaList.length > 0 && (
-        <section className="py-16 bg-white">
+      {/* Lembaga */}
+      {lembagaList && lembagaList.length > 0 && (
+        <section className="py-24 bg-gray-50">
           <div className="max-w-7xl mx-auto px-4">
-            <div className="flex items-center justify-between mb-8">
-              <div>
-                <h2 className="text-2xl font-bold text-gray-900">
-                  Berita & Pengumuman
-                </h2>
-                <p className="text-gray-500 mt-1">
-                  Informasi terbaru dari desa
-                </p>
-              </div>
-              <Link to="/berita">
-                <Button variant="outline" className="hidden sm:flex">
-                  Lihat Semua
-                  <ArrowRight className="w-4 h-4 ml-2" />
-                </Button>
-              </Link>
+            <div className="text-center mb-16">
+              <h2 className="text-3xl font-extrabold text-gray-900 tracking-tight">
+                Lembaga Kemasyarakatan
+              </h2>
+              <p className="text-gray-500 mt-3 font-medium max-w-2xl mx-auto">
+                Organisasi yang mengabdi dan berkolaborasi untuk memajukan kesejahteraan masyarakat desa.
+              </p>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
-              {beritaList.map((berita) => (
-                <Link key={berita.id} to={`/berita/${berita.slug}`}>
-                  <Card className="border-0 shadow-sm hover:shadow-lg transition-all cursor-pointer h-full overflow-hidden group">
-                    <div className="h-40 overflow-hidden">
-                      <img
-                        src={
-                          berita.gambarSampul ||
-                          "https://images.unsplash.com/photo-1497436072909-60f360e1d4b1?w=400"
-                        }
-                        alt={berita.judul}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                      />
-                    </div>
-                    <CardContent className="p-4">
-                      <div className="flex items-center gap-2 mb-2">
-                        <span
-                          className={`text-[10px] px-2 py-0.5 rounded-full font-medium ${
-                            berita.kategori === "pengumuman"
-                              ? "bg-orange-100 text-orange-700"
-                              : berita.kategori === "berita"
-                                ? "bg-blue-100 text-blue-700"
-                                : "bg-emerald-100 text-emerald-700"
-                          }`}
-                        >
-                          {berita.kategori === "kabar_desa"
-                            ? "Kabar Desa"
-                            : berita.kategori === "pengumuman"
-                              ? "Pengumuman"
-                              : "Berita"}
-                        </span>
-                        <span className="text-[10px] text-gray-400 flex items-center gap-1">
-                          <Calendar className="w-3 h-3" />
-                          {formatDate(berita.tanggalPublish)}
-                        </span>
-                      </div>
-                      <h3 className="font-semibold text-sm text-gray-900 line-clamp-2 group-hover:text-emerald-700 transition-colors">
-                        {berita.judul}
-                      </h3>
-                    </CardContent>
-                  </Card>
-                </Link>
-              ))}
-            </div>
-          </div>
-        </section>
-      )}
-
-      {/* Gallery Preview */}
-      {galeriList && galeriList.length > 0 && (
-        <section className="py-16 max-w-7xl mx-auto px-4">
-          <div className="flex items-center justify-between mb-8">
-            <div>
-              <h2 className="text-2xl font-bold text-gray-900">Galeri Desa</h2>
-              <p className="text-gray-500 mt-1">Dokumentasi kegiatan desa</p>
-            </div>
-            <Link to="/transparansi/galeri">
-              <Button variant="outline" className="hidden sm:flex">
-                Lihat Semua
-                <ArrowRight className="w-4 h-4 ml-2" />
-              </Button>
-            </Link>
-          </div>
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-            {galeriList.slice(0, 6).map((item) => (
-              <div
-                key={item.id}
-                className="relative group overflow-hidden rounded-xl aspect-[4/3]"
-              >
-                <img
-                  src={item.gambarUrl}
-                  alt={item.judul}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                <div className="absolute bottom-0 left-0 right-0 p-3 translate-y-full group-hover:translate-y-0 transition-transform">
-                  <p className="text-white text-sm font-medium">
-                    {item.judul}
-                  </p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </section>
-      )}
-
-      {/* UMKM Preview */}
-      {umkmList && umkmList.length > 0 && (
-        <section className="py-16 bg-white">
-          <div className="max-w-7xl mx-auto px-4">
-            <div className="flex items-center justify-between mb-8">
-              <div>
-                <h2 className="text-2xl font-bold text-gray-900">
-                  UMKM & Produk Lokal
-                </h2>
-                <p className="text-gray-500 mt-1">
-                  Temukan produk unggulan desa
-                </p>
-              </div>
-              <Link to="/potensi/umkm">
-                <Button variant="outline" className="hidden sm:flex">
-                  Lihat Semua
-                  <ArrowRight className="w-4 h-4 ml-2" />
-                </Button>
-              </Link>
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-              {umkmList.map((item) => (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {lembagaList.slice(0, 3).map((item) => (
                 <Card
                   key={item.id}
-                  className="border-0 shadow-sm hover:shadow-md transition-shadow overflow-hidden"
+                  className="border-0 shadow-sm hover:shadow-[0_20px_40px_rgb(0,0,0,0.06)] transition-all rounded-2xl bg-white group"
                 >
-                  <div className="h-44 overflow-hidden">
-                    <img
-                      src={
-                        item.fotoUrl ||
-                        "https://images.unsplash.com/photo-1556761175-5973dc0f32e7?w=400"
-                      }
-                      alt={item.namaProduk}
-                      className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
-                    />
-                  </div>
-                  <CardContent className="p-4">
-                    <span className="text-[10px] px-2 py-0.5 bg-emerald-100 text-emerald-700 rounded-full font-medium capitalize">
-                      {item.kategori}
-                    </span>
-                    <h3 className="font-semibold text-sm text-gray-900 mt-2">
-                      {item.namaProduk}
-                    </h3>
-                    {item.namaUsaha && (
-                      <p className="text-xs text-gray-500 mt-1">
-                        {item.namaUsaha}
-                      </p>
-                    )}
+                  <CardContent className="p-6">
+                    <div className="flex items-start gap-5">
+                      {item.fotoUrl ? (
+                        <img
+                          src={item.fotoUrl}
+                          alt={item.nama}
+                          className="h-16 w-16 rounded-2xl object-cover shrink-0 shadow-sm group-hover:scale-105 transition-transform"
+                        />
+                      ) : (
+                        <div className="h-16 w-16 bg-primary/5 rounded-2xl flex items-center justify-center shrink-0 group-hover:bg-primary/10 transition-colors">
+                          <Users className="h-7 w-7 text-primary" />
+                        </div>
+                      )}
+                      <div>
+                        <h3 className="font-bold text-gray-900 group-hover:text-primary transition-colors leading-tight mb-2">
+                          {item.nama}
+                        </h3>
+                        {item.ketua && (
+                          <p className="text-sm text-gray-500 font-medium">
+                            <span className="text-gray-400 text-xs uppercase tracking-wider block mb-0.5">Ketua</span>
+                            {item.ketua}
+                          </p>
+                        )}
+                      </div>
+                    </div>
                   </CardContent>
                 </Card>
               ))}
             </div>
-          </div>
-        </section>
-      )}
-
-      {/* Lembaga */}
-      {lembagaList && lembagaList.length > 0 && (
-        <section className="py-16 max-w-7xl mx-auto px-4">
-          <div className="text-center mb-10">
-            <h2 className="text-2xl font-bold text-gray-900">
-              Lembaga Kemasyarakatan
-            </h2>
-            <p className="text-gray-500 mt-1">
-              Struktur organisasi kemasyarakatan desa
-            </p>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-            {lembagaList.slice(0, 3).map((item) => (
-              <Card
-                key={item.id}
-                className="border-0 shadow-sm hover:shadow-md transition-shadow"
-              >
-                <CardContent className="p-5">
-                  <div className="flex items-start gap-4">
-                    {item.fotoUrl ? (
-                      <img
-                        src={item.fotoUrl}
-                        alt={item.nama}
-                        className="h-14 w-14 rounded-lg object-cover shrink-0"
-                      />
-                    ) : (
-                      <div className="h-14 w-14 bg-emerald-100 rounded-lg flex items-center justify-center shrink-0">
-                        <Users className="h-6 w-6 text-emerald-700" />
-                      </div>
-                    )}
-                    <div>
-                      <h3 className="font-semibold text-sm text-gray-900">
-                        {item.nama}
-                      </h3>
-                      {item.ketua && (
-                        <p className="text-xs text-gray-500 mt-1">
-                          Ketua: {item.ketua}
-                        </p>
-                      )}
-                      {item.anggota && (
-                        <p className="text-xs text-gray-400 mt-1">
-                          {item.anggota} anggota
-                        </p>
-                      )}
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-          <div className="text-center mt-6">
-            <Link to="/pemerintahan/lembaga">
-              <Button variant="outline">
-                Lihat Semua Lembaga
-                <ArrowRight className="w-4 h-4 ml-2" />
-              </Button>
-            </Link>
+            <div className="text-center mt-10">
+              <Link to="/pemerintahan/lembaga">
+                <Button variant="outline" className="rounded-xl px-8 font-semibold border-gray-300 hover:bg-gray-100">
+                  Jelajahi Semua Lembaga
+                </Button>
+              </Link>
+            </div>
           </div>
         </section>
       )}

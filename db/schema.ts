@@ -201,6 +201,7 @@ export const galeri = mysqlTable("galeri", {
   id: serial("id").primaryKey(),
   judul: varchar("judul", { length: 255 }).notNull(),
   gambarUrl: text("gambar_url").notNull(),
+  fotoUrls: json("foto_urls").$type<string[]>().default([]), // Multiple photos
   kategori: mysqlEnum("kategori", [
     "kegiatan",
     "infraastruktur",
@@ -307,6 +308,7 @@ export type InsertPengaduan = typeof pengaduan.$inferInsert;
 export const apbdes = mysqlTable("apbdes", {
   id: serial("id").primaryKey(),
   tahun: int("tahun").notNull(),
+  judul: varchar("judul", { length: 255 }),
   pendapatanTotal: decimal("pendapatan_total", { precision: 15, scale: 2 }).default("0"),
   belanjaTotal: decimal("belanja_total", { precision: 15, scale: 2 }).default("0"),
   pembiayaanTotal: decimal("pembiayaan_total", { precision: 15, scale: 2 }).default("0"),
@@ -480,6 +482,7 @@ export type InsertDusunSotk = typeof dusunSotk.$inferInsert;
 // ============================================================
 export const pariwisata = mysqlTable("pariwisata", {
   id: serial("id").primaryKey(),
+  kategori: mysqlEnum("kategori", ["penginapan", "objek_wisata"]).default("penginapan").notNull(),
   namaPenginapan: varchar("nama_penginapan", { length: 255 }).notNull(),
   alamat: text("alamat").notNull(),
   latitude: decimal("latitude", { precision: 10, scale: 8 }),
@@ -642,6 +645,9 @@ export const ekonomi = mysqlTable("ekonomi", {
     "pertanian",
     "perternakan",
     "perikanan",
+    "rumah_makan",
+    "warung_makan",
+    "restoran",
   ])
     .notNull(),
   alamat: text("alamat").notNull(),

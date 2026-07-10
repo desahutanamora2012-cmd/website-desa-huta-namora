@@ -15,7 +15,7 @@ export default function AdminApbdes() {
   const utils = trpc.useUtils();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingId, setEditingId] = useState<number | null>(null);
-  const [form, setForm] = useState({ tahun: new Date().getFullYear(), pendapatanTotal: "", belanjaTotal: "", pembiayaanTotal: "", rincianPendapatan: "", rincianBelanja: "", dokumenUrl: "", gambarInfografis: "" });
+  const [form, setForm] = useState({ tahun: new Date().getFullYear(), judul: "", pendapatanTotal: "", belanjaTotal: "", pembiayaanTotal: "", rincianPendapatan: "", rincianBelanja: "", dokumenUrl: "", gambarInfografis: "" });
 
   const { data: apbdesList, isLoading } = trpc.desa.apbdes.list.useQuery();
 
@@ -54,17 +54,17 @@ export default function AdminApbdes() {
     onError: () => toast.error("Gagal menghapus"),
   });
 
-  const resetForm = () => { setForm({ tahun: new Date().getFullYear(), pendapatanTotal: "", belanjaTotal: "", pembiayaanTotal: "", rincianPendapatan: "", rincianBelanja: "", dokumenUrl: "", gambarInfografis: "" }); setEditingId(null); };
+  const resetForm = () => { setForm({ tahun: new Date().getFullYear(), judul: "", pendapatanTotal: "", belanjaTotal: "", pembiayaanTotal: "", rincianPendapatan: "", rincianBelanja: "", dokumenUrl: "", gambarInfografis: "" }); setEditingId(null); };
 
   const handleEdit = (item: any) => {
     setEditingId(item.id);
-    setForm({ tahun: item.tahun, pendapatanTotal: item.pendapatanTotal || "", belanjaTotal: item.belanjaTotal || "", pembiayaanTotal: item.pembiayaanTotal || "", rincianPendapatan: item.rincianPendapatan ? JSON.stringify(item.rincianPendapatan, null, 2) : "", rincianBelanja: item.rincianBelanja ? JSON.stringify(item.rincianBelanja, null, 2) : "", dokumenUrl: item.dokumenUrl || "", gambarInfografis: item.gambarInfografis || "" });
+    setForm({ tahun: item.tahun, judul: item.judul || "", pendapatanTotal: item.pendapatanTotal || "", belanjaTotal: item.belanjaTotal || "", pembiayaanTotal: item.pembiayaanTotal || "", rincianPendapatan: item.rincianPendapatan ? JSON.stringify(item.rincianPendapatan, null, 2) : "", rincianBelanja: item.rincianBelanja ? JSON.stringify(item.rincianBelanja, null, 2) : "", dokumenUrl: item.dokumenUrl || "", gambarInfografis: item.gambarInfografis || "" });
     setDialogOpen(true);
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const data: any = { tahun: form.tahun, pendapatanTotal: form.pendapatanTotal, belanjaTotal: form.belanjaTotal, pembiayaanTotal: form.pembiayaanTotal, dokumenUrl: form.dokumenUrl, gambarInfografis: form.gambarInfografis };
+    const data: any = { tahun: form.tahun, judul: form.judul, pendapatanTotal: form.pendapatanTotal, belanjaTotal: form.belanjaTotal, pembiayaanTotal: form.pembiayaanTotal, dokumenUrl: form.dokumenUrl, gambarInfografis: form.gambarInfografis };
     if (form.rincianPendapatan) { try { data.rincianPendapatan = JSON.parse(form.rincianPendapatan); } catch { toast.error("JSON rincian pendapatan tidak valid"); return; } }
     if (form.rincianBelanja) { try { data.rincianBelanja = JSON.parse(form.rincianBelanja); } catch { toast.error("JSON rincian belanja tidak valid"); return; } }
     if (editingId) update.mutate({ id: editingId, ...data });
@@ -91,6 +91,7 @@ export default function AdminApbdes() {
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
                   <div><Label>Tahun</Label><Input type="number" value={form.tahun} onChange={(e) => setForm({ ...form, tahun: parseInt(e.target.value) })} required /></div>
+                  <div><Label>Judul Custom (Opsional)</Label><Input value={form.judul} onChange={(e) => setForm({ ...form, judul: e.target.value })} placeholder="Contoh: APBDesa TA 2026" /></div>
                   <div><Label>Pendapatan Total</Label><Input value={form.pendapatanTotal} onChange={(e) => setForm({ ...form, pendapatanTotal: e.target.value })} placeholder="2850000000" /></div>
                   <div><Label>Belanja Total</Label><Input value={form.belanjaTotal} onChange={(e) => setForm({ ...form, belanjaTotal: e.target.value })} /></div>
                   <div><Label>Pembiayaan Total</Label><Input value={form.pembiayaanTotal} onChange={(e) => setForm({ ...form, pembiayaanTotal: e.target.value })} /></div>
@@ -112,7 +113,7 @@ export default function AdminApbdes() {
             <div className="overflow-x-auto">
               <Table>
                 <TableHeader>
-                  <TableRow><TableHead>Tahun</TableHead><TableHead>Pendapatan</TableHead><TableHead>Belanja</TableHead><TableHead className="w-[100px]">Aksi</TableHead></TableRow>
+                  <TableRow><TableHead>Tahun</TableHead><TableHead>Judul</TableHead><TableHead>Pendapatan</TableHead><TableHead>Belanja</TableHead><TableHead className="w-[100px]">Aksi</TableHead></TableRow>
                 </TableHeader>
                 <TableBody>
                   {isLoading ? (
@@ -121,6 +122,7 @@ export default function AdminApbdes() {
                     apbdesList.map((item) => (
                       <TableRow key={item.id}>
                         <TableCell className="font-medium">{item.tahun}</TableCell>
+                        <TableCell>{item.judul || "-"}</TableCell>
                         <TableCell>{formatRupiah(item.pendapatanTotal)}</TableCell>
                         <TableCell>{formatRupiah(item.belanjaTotal)}</TableCell>
                         <TableCell>

@@ -10,6 +10,7 @@ import {
   Clock,
   TrendingUp,
 } from "lucide-react";
+import SubmenuHeader from "@/components/SubmenuHeader";
 
 const jenisLabels: Record<string, string> = {
   pasar: "Pasar",
@@ -24,6 +25,9 @@ const jenisLabels: Record<string, string> = {
   pertanian: "Pertanian",
   perternakan: "Peternakan",
   perikanan: "Perikanan",
+  rumah_makan: "Rumah Makan",
+  warung_makan: "Warung Makan",
+  restoran: "Restoran",
 };
 
 const jenisColors: Record<string, string> = {
@@ -39,6 +43,9 @@ const jenisColors: Record<string, string> = {
   pertanian: "bg-green-100 text-green-800",
   perternakan: "bg-amber-100 text-amber-800",
   perikanan: "bg-blue-100 text-blue-800",
+  rumah_makan: "bg-red-100 text-red-800",
+  warung_makan: "bg-orange-100 text-orange-800",
+  restoran: "bg-rose-100 text-rose-800",
 };
 
 export default function EkonomiPage() {
@@ -59,7 +66,9 @@ export default function EkonomiPage() {
     }
 
     if (filterJenis) {
-      result = result.filter((item) => item.jenis === filterJenis);
+      result = result.filter(
+        (item) => item.jenis?.trim().toLowerCase() === filterJenis.trim().toLowerCase()
+      );
     }
 
     return result;
@@ -67,23 +76,16 @@ export default function EkonomiPage() {
 
   const jenisOptions = useMemo(() => {
     if (!ekonomiList) return [];
-    const jenis = new Set(ekonomiList.map((item) => item.jenis));
-    return Array.from(jenis).sort();
+    const jenis = new Set(ekonomiList.map((item) => item.jenis?.trim()));
+    return Array.from(jenis).filter(Boolean).sort();
   }, [ekonomiList]);
 
   return (
     <Layout>
-      {/* Hero Section */}
-      <div className="bg-gradient-to-br from-amber-700 via-yellow-600 to-orange-700 text-white py-16">
-        <div className="max-w-7xl mx-auto px-4">
-          <h1 className="text-4xl md:text-5xl font-bold mb-4">Ekonomi</h1>
-          <p className="text-amber-100 text-lg max-w-2xl">
-            Ketahui berbagai sarana ekonomi dan usaha di desa kami. Dukung
-            pertumbuhan ekonomi lokal dengan berinteraksi langsung dengan
-            pelaku usaha dan komunitas bisnis lokal.
-          </p>
-        </div>
-      </div>
+      <SubmenuHeader 
+        title="Potensi Ekonomi" 
+        subtitle="Jelajahi berbagai sarana ekonomi di desa, mulai dari pasar, koperasi, UMKM, hingga fasilitas pendukung lainnya yang berperan dalam meningkatkan perekonomian masyarakat." 
+      />
 
       <div className="max-w-7xl mx-auto px-4 py-12">
         {/* Search & Filter */}
@@ -99,7 +101,11 @@ export default function EkonomiPage() {
           {/* Filter Buttons */}
           <div className="flex flex-wrap gap-2">
             <button
-              onClick={() => setFilterJenis(null)}
+              type="button"
+              onClick={(e) => {
+                e.preventDefault();
+                setFilterJenis(null);
+              }}
               className={`px-4 py-2 rounded-full text-sm font-semibold transition ${
                 filterJenis === null
                   ? "bg-amber-700 text-white"
@@ -111,14 +117,18 @@ export default function EkonomiPage() {
             {jenisOptions.map((jenis) => (
               <button
                 key={jenis}
-                onClick={() => setFilterJenis(jenis)}
+                type="button"
+                onClick={(e) => {
+                  e.preventDefault();
+                  setFilterJenis(jenis);
+                }}
                 className={`px-4 py-2 rounded-full text-sm font-semibold transition ${
                   filterJenis === jenis
                     ? "bg-amber-700 text-white"
                     : "bg-gray-200 text-gray-700 hover:bg-gray-300"
                 }`}
               >
-                {jenisLabels[jenis] || jenis}
+                {jenisLabels[jenis.toLowerCase()] || jenis}
               </button>
             ))}
           </div>

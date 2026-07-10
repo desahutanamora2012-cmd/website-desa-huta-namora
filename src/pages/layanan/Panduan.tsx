@@ -7,6 +7,7 @@ import {
 import { ClipboardList, FileText, Search } from "lucide-react";
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
+import SubmenuHeader from "@/components/SubmenuHeader";
 
 export default function PanduanPage() {
   const { data: panduanList } = trpc.desa.panduan.list.useQuery();
@@ -31,14 +32,10 @@ export default function PanduanPage() {
 
   return (
     <Layout>
-      <div className="bg-gradient-to-br from-emerald-700 to-teal-700 text-white py-12">
-        <div className="max-w-7xl mx-auto px-4">
-          <h1 className="text-3xl font-bold">Panduan Layanan</h1>
-          <p className="text-emerald-100 mt-2">
-            Prosedur dan persyaratan pengurusan dokumen
-          </p>
-        </div>
-      </div>
+      <SubmenuHeader 
+        title="Panduan Layanan" 
+        subtitle="Prosedur dan persyaratan pengurusan dokumen" 
+      />
 
       <div className="max-w-7xl mx-auto px-4 py-10 space-y-8">
         {/* Search */}
@@ -67,24 +64,34 @@ export default function PanduanPage() {
                   >
                     <CardContent className="p-5">
                       <div className="flex items-start justify-between gap-4">
-                        <div className="flex-1">
-                          <h3 className="font-semibold text-gray-900 flex items-center gap-2">
-                            <FileText className="w-4 h-4 text-emerald-600" />
+                        <div className="flex-1 w-full">
+                          <h3 className="font-semibold text-gray-900 flex items-center gap-2 text-lg">
+                            <FileText className="w-5 h-5 text-emerald-600" />
                             {item.judul}
                           </h3>
-                          <div className="mt-3 text-sm text-gray-600 whitespace-pre-line">
+                          <div className="mt-3 text-sm text-gray-600 whitespace-pre-line leading-relaxed">
                             {item.konten}
                           </div>
+                          
                           {item.filePdf && (
-                            <a
-                              href={item.filePdf}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="inline-flex items-center gap-1 text-sm text-emerald-700 hover:text-emerald-800 mt-3 font-medium"
-                            >
-                              <FileText className="w-4 h-4" />
-                              Unduh File PDF
-                            </a>
+                            <div className="mt-6 flex flex-col gap-4">
+                              <div className="w-full bg-gray-50 rounded-lg border border-gray-200 overflow-hidden">
+                                <iframe 
+                                  src={item.filePdf} 
+                                  className="w-full h-[500px]"
+                                  title={`PDF Document ${item.judul}`}
+                                />
+                              </div>
+                              <a
+                                href={item.filePdf}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="inline-flex items-center justify-center gap-2 text-sm text-white bg-emerald-700 hover:bg-emerald-800 rounded-md py-2 px-4 transition-colors font-medium self-start shadow-sm"
+                              >
+                                <FileText className="w-4 h-4" />
+                                Buka di Tab Baru / Unduh
+                              </a>
+                            </div>
                           )}
                         </div>
                       </div>

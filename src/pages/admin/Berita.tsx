@@ -51,7 +51,7 @@ export default function AdminBerita() {
     slug: "",
     isi: "",
     gambarSampul: "",
-    kategori: "kabar_desa" as "kabar_desa" | "pengumuman" | "berita",
+    kategori: "pengumuman" as "pengumuman" | "berita",
     status: "draft" as "draft" | "published" | "archived",
   });
 
@@ -105,7 +105,7 @@ export default function AdminBerita() {
       slug: "",
       isi: "",
       gambarSampul: "",
-      kategori: "kabar_desa",
+      kategori: "pengumuman",
       status: "draft",
     });
     setEditingId(null);
@@ -240,7 +240,6 @@ export default function AdminBerita() {
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="kabar_desa">Kabar Desa</SelectItem>
                         <SelectItem value="pengumuman">Pengumuman</SelectItem>
                         <SelectItem value="berita">Berita</SelectItem>
                       </SelectContent>

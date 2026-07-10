@@ -43,6 +43,7 @@ export default function AdminPariwisata() {
     latitude: "",
     longitude: "",
     deskripsi: "",
+    kategori: "penginapan" as "penginapan" | "objek_wisata",
     fotoPenginapan: [] as string[],
     kontakWhatsapp: "",
     hargaMin: "",
@@ -103,6 +104,7 @@ export default function AdminPariwisata() {
       latitude: "",
       longitude: "",
       deskripsi: "",
+      kategori: "penginapan",
       fotoPenginapan: [],
       kontakWhatsapp: "",
       hargaMin: "",
@@ -126,6 +128,7 @@ export default function AdminPariwisata() {
       latitude: item.latitude || "",
       longitude: item.longitude || "",
       deskripsi: item.deskripsi || "",
+      kategori: item.kategori || "penginapan",
       fotoPenginapan: item.fotoPenginapan || [],
       kontakWhatsapp: item.kontakWhatsapp || "",
       hargaMin: item.hargaMin || "",
@@ -189,6 +192,7 @@ export default function AdminPariwisata() {
       hargaMax: form.hargaMax ? form.hargaMax : undefined,
       rating: form.rating ? form.rating : undefined,
       urutan: Number(form.urutan ?? 0),
+      kategori: form.kategori,
       // ensure arrays
       fotoPenginapan: form.fotoPenginapan || [],
       fasilitas: form.fasilitas || [],
@@ -212,8 +216,8 @@ export default function AdminPariwisata() {
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Kelola Pariwisata & Penginapan</h1>
-            <p className="text-gray-500 text-sm mt-1">Data penginapan untuk ditampilkan di menu Potensi Desa</p>
+            <h1 className="text-3xl font-bold text-gray-900">Kelola Pariwisata</h1>
+            <p className="text-gray-500 text-sm mt-1">Data Penginapan dan Objek Wisata untuk ditampilkan di menu Potensi Desa</p>
           </div>
           <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
             <DialogTrigger asChild>
@@ -225,18 +229,18 @@ export default function AdminPariwisata() {
                   setForm((prev) => ({ ...prev }));
                 }}
               >
-                <Plus className="w-4 h-4 mr-2" /> Tambah Penginapan
+                <Plus className="w-4 h-4 mr-2" /> Tambah Data
               </Button>
             </DialogTrigger>
             <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
               <DialogHeader>
-                <DialogTitle className="text-xl">{editingId ? "Edit" : "Tambah"} Penginapan</DialogTitle>
+                <DialogTitle className="text-xl">{editingId ? "Edit" : "Tambah"} Data Pariwisata</DialogTitle>
               </DialogHeader>
 
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <Label className="text-gray-700">Nama Penginapan *</Label>
+                    <Label className="text-gray-700">Nama Tempat / Penginapan *</Label>
                     <Input
                       value={form.namaPenginapan}
                       onChange={(e) => setForm((p) => ({ ...p, namaPenginapan: e.target.value }))}
@@ -244,6 +248,18 @@ export default function AdminPariwisata() {
                       required
                       className="mt-1"
                     />
+                  </div>
+                  <div>
+                    <Label className="text-gray-700">Kategori *</Label>
+                    <Select value={form.kategori} onValueChange={(val: any) => setForm(p => ({ ...p, kategori: val }))}>
+                      <SelectTrigger className="mt-1">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="penginapan">Penginapan</SelectItem>
+                        <SelectItem value="objek_wisata">Objek Wisata</SelectItem>
+                      </SelectContent>
+                    </Select>
                   </div>
                   <div>
                     <Label className="text-gray-700">Urutan</Label>
@@ -408,8 +424,8 @@ export default function AdminPariwisata() {
                   {create.isPending || update.isPending
                     ? "Menyimpan..."
                     : editingId
-                      ? "Perbarui Penginapan"
-                      : "Simpan Penginapan"}
+                      ? "Perbarui Data"
+                      : "Simpan Data"}
                 </Button>
               </form>
             </DialogContent>
@@ -427,6 +443,7 @@ export default function AdminPariwisata() {
                     <TableRow className="bg-gray-50">
                       <TableHead className="font-semibold">Foto</TableHead>
                       <TableHead className="font-semibold">Nama</TableHead>
+                      <TableHead className="font-semibold">Kategori</TableHead>
                       <TableHead className="font-semibold">Alamat</TableHead>
                       <TableHead className="font-semibold">Harga</TableHead>
                       <TableHead className="font-semibold">Rating</TableHead>
@@ -448,6 +465,9 @@ export default function AdminPariwisata() {
                           )}
                         </TableCell>
                         <TableCell className="font-medium">{item.namaPenginapan}</TableCell>
+                        <TableCell className="text-sm">
+                          {item.kategori === "objek_wisata" ? "Objek Wisata" : "Penginapan"}
+                        </TableCell>
                         <TableCell className="text-sm text-gray-600">{item.alamat}</TableCell>
                         <TableCell className="text-sm">
                           {item.hargaMin && item.hargaMax

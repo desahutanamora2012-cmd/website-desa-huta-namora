@@ -530,6 +530,7 @@ const galeriRouter = createRouter({
       z.object({
         judul: z.string(),
         gambarUrl: z.string(),
+        fotoUrls: z.array(z.string()).optional(),
         kategori: z.enum([
           "kegiatan",
           "infraastruktur",
@@ -558,6 +559,7 @@ const galeriRouter = createRouter({
         id: z.number(),
         judul: z.string().optional(),
         gambarUrl: z.string().optional(),
+        fotoUrls: z.array(z.string()).optional(),
         kategori: z.enum([
           "kegiatan",
           "infraastruktur",
@@ -817,6 +819,7 @@ const apbdesRouter = createRouter({
     .input(
       z.object({
         tahun: z.number(),
+        judul: z.string().optional(),
         pendapatanTotal: z.union([z.string(), z.number()]).optional(),
         belanjaTotal: z.union([z.string(), z.number()]).optional(),
         pembiayaanTotal: z.union([z.string(), z.number()]).optional(),
@@ -842,6 +845,7 @@ const apbdesRouter = createRouter({
       z.object({
         id: z.number(),
         tahun: z.number().optional(),
+        judul: z.string().optional(),
         pendapatanTotal: z.union([z.string(), z.number()]).optional(),
         belanjaTotal: z.union([z.string(), z.number()]).optional(),
         pembiayaanTotal: z.union([z.string(), z.number()]).optional(),
@@ -1279,6 +1283,7 @@ const pariwisataRouter = createRouter({
   create: adminQuery
     .input(
       z.object({
+        kategori: z.enum(["penginapan", "objek_wisata"]).optional(),
         namaPenginapan: z.string(),
         alamat: z.string(),
         latitude: z.number().optional(),
@@ -1311,6 +1316,7 @@ const pariwisataRouter = createRouter({
     .input(
       z.object({
         id: z.number(),
+        kategori: z.enum(["penginapan", "objek_wisata"]).optional(),
         namaPenginapan: z.string().optional(),
         alamat: z.string().optional(),
         latitude: z.number().optional(),
@@ -1676,6 +1682,9 @@ const ekonomiRouter = createRouter({
           "pertanian",
           "perternakan",
           "perikanan",
+          "rumah_makan",
+          "warung_makan",
+          "restoran",
         ]),
         alamat: z.string(),
         latitude: z.number().optional(),
@@ -1719,6 +1728,9 @@ const ekonomiRouter = createRouter({
           "pertanian",
           "perternakan",
           "perikanan",
+          "rumah_makan",
+          "warung_makan",
+          "restoran",
         ]).optional(),
         alamat: z.string().optional(),
         latitude: z.number().optional(),

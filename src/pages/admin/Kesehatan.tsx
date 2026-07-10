@@ -164,8 +164,8 @@ export default function AdminKesehatan() {
   // Convert string fields to proper types (sesuaikan dengan schema zod backend)
     const submitData = {
       ...form,
-      latitude: form.latitude ? String(form.latitude) : undefined,
-      longitude: form.longitude ? String(form.longitude) : undefined,
+      latitude: form.latitude ? Number(form.latitude) : undefined,
+      longitude: form.longitude ? Number(form.longitude) : undefined,
       urutan: Number(form.urutan ?? 0),
     };
     
@@ -366,8 +366,9 @@ export default function AdminKesehatan() {
                       value={layananInput}
                       onChange={(e) => setLayananInput(e.target.value)}
                       placeholder="Contoh: Pemeriksaan Umum, Vaksinasi"
-                      onKeyPress={(e) => {
+                      onKeyDown={(e) => {
                         if (e.key === "Enter") {
+                          e.preventDefault();
                           handleAddLayanan();
                         }
                       }}

@@ -20,9 +20,83 @@ import {
   Facebook,
   Instagram,
   Youtube,
+  Twitter,
+  Linkedin,
+  MessageCircle,
+  Music2,
+  Link as LinkIcon,
   Globe,
 } from "lucide-react";
 import { useState } from "react";
+
+function getGoogleMapsEmbedUrl(input: string, fallbackQuery: string): string {
+  if (!input) return "";
+  if (input.includes("<iframe")) {
+    const match = input.match(/src="([^"]+)"/);
+    return match ? match[1] : "";
+  }
+  if (input.includes("/embed") || input.includes("output=embed")) {
+    return input;
+  }
+  
+  let query = input;
+  if (input.startsWith("http")) {
+    const placeMatch = input.match(/\/place\/([^/]+)/);
+    if (placeMatch) {
+      query = decodeURIComponent(placeMatch[1].replace(/\+/g, " "));
+    } else {
+      const coordMatch = input.match(/@(-?\d+\.\d+),(-?\d+\.\d+)/);
+      if (coordMatch) {
+        query = `${coordMatch[1]},${coordMatch[2]}`;
+      } else {
+        query = fallbackQuery;
+      }
+    }
+  }
+  return `https://maps.google.com/maps?q=${encodeURIComponent(query)}&t=&z=15&ie=UTF8&iwloc=&output=embed`;
+}
+
+function getMedsosIcon(platform: string) {
+  switch (platform.toLowerCase()) {
+    case "facebook": return <Facebook className="w-4 h-4" />;
+    case "instagram": return <Instagram className="w-4 h-4" />;
+    case "youtube": return <Youtube className="w-4 h-4" />;
+    case "twitter": return <Twitter className="w-4 h-4" />;
+    case "linkedin": return <Linkedin className="w-4 h-4" />;
+    case "whatsapp": return <MessageCircle className="w-4 h-4" />;
+    case "telegram": return <Send className="w-4 h-4" />;
+    case "tiktok": return <Music2 className="w-4 h-4" />;
+    default: return <LinkIcon className="w-4 h-4" />;
+  }
+}
+
+function getMedsosColor(platform: string) {
+  switch (platform.toLowerCase()) {
+    case "facebook": return "bg-blue-50 text-blue-700 hover:bg-blue-100";
+    case "instagram": return "bg-pink-50 text-pink-700 hover:bg-pink-100";
+    case "youtube": return "bg-red-50 text-red-700 hover:bg-red-100";
+    case "twitter": return "bg-gray-50 text-gray-900 hover:bg-gray-200";
+    case "linkedin": return "bg-blue-50 text-blue-800 hover:bg-blue-200";
+    case "whatsapp": return "bg-green-50 text-green-700 hover:bg-green-100";
+    case "telegram": return "bg-sky-50 text-sky-700 hover:bg-sky-100";
+    case "tiktok": return "bg-black text-white hover:bg-gray-800";
+    default: return "bg-gray-100 text-gray-700 hover:bg-gray-200";
+  }
+}
+
+function formatMedsosUrl(platform: string, url: string) {
+  // If user entered a username instead of a URL, attempt to format it (though the admin should enter URLs)
+  if (!url.startsWith("http")) {
+    switch (platform.toLowerCase()) {
+      case "facebook": return `https://facebook.com/${url}`;
+      case "instagram": return `https://instagram.com/${url.replace("@", "")}`;
+      case "youtube": return `https://youtube.com/${url}`;
+      case "twitter": return `https://twitter.com/${url.replace("@", "")}`;
+      default: return `https://${url}`;
+    }
+  }
+  return url;
+}
 import { toast } from "sonner";
 
 export default function KontakPage() {
@@ -60,9 +134,14 @@ export default function KontakPage() {
   const kontakEmail = profil?.kontak_email || "";
   const kontakTelepon = profil?.kontak_telepon || "";
   const googleMapsEmbed = profil?.google_maps_embed || "";
-  const medsos = profil?.medsos
-    ? JSON.parse(profil.medsos)
-    : { facebook: "", instagram: "", youtube: "" };
+  const medsosRaw = profil?.medsos || "{}";
+  let medsos: Record<string, string> = {};
+  try {
+    medsos = JSON.parse(medsosRaw);
+  } catch (e) {
+    medsos = {};
+  }
+  const medsosEntries = Object.entries(medsos).filter(([_, url]) => url);
 
   return (
     <Layout>
@@ -174,38 +253,21 @@ export default function KontakPage() {
               </CardHeader>
               <CardContent>
                 <div className="flex flex-wrap gap-3">
-                  {medsos.facebook && (
-                    <a
-                      href={`https://facebook.com/${medsos.facebook}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center gap-2 px-4 py-2 bg-blue-50 text-blue-700 rounded-lg hover:bg-blue-100 transition-colors text-sm"
-                    >
-                      <Facebook className="w-4 h-4" />
-                      Facebook
-                    </a>
-                  )}
-                  {medsos.instagram && (
-                    <a
-                      href={`https://instagram.com/${medsos.instagram.replace("@", "")}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center gap-2 px-4 py-2 bg-pink-50 text-pink-700 rounded-lg hover:bg-pink-100 transition-colors text-sm"
-                    >
-                      <Instagram className="w-4 h-4" />
-                      Instagram
-                    </a>
-                  )}
-                  {medsos.youtube && (
-                    <a
-                      href={`https://youtube.com/${medsos.youtube}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center gap-2 px-4 py-2 bg-red-50 text-red-700 rounded-lg hover:bg-red-100 transition-colors text-sm"
-                    >
-                      <Youtube className="w-4 h-4" />
-                      YouTube
-                    </a>
+                  {medsosEntries.length > 0 ? (
+                    medsosEntries.map(([platform, url]) => (
+                      <a
+                        key={platform}
+                        href={formatMedsosUrl(platform, url as string)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className={`flex items-center justify-center w-10 h-10 rounded-full transition-all hover:scale-110 shadow-sm ${getMedsosColor(platform)}`}
+                        title={platform.charAt(0).toUpperCase() + platform.slice(1)}
+                      >
+                        {getMedsosIcon(platform)}
+                      </a>
+                    ))
+                  ) : (
+                    <p className="text-sm text-gray-500">Belum ada media sosial</p>
                   )}
                 </div>
               </CardContent>
@@ -223,7 +285,7 @@ export default function KontakPage() {
                 <CardContent>
                   <div className="rounded-lg overflow-hidden border border-gray-200">
                     <iframe
-                      src={googleMapsEmbed}
+                      src={getGoogleMapsEmbedUrl(googleMapsEmbed, `Kantor Desa ${namaDesa}, ${kecamatan}, ${kabupaten}`)}
                       width="100%"
                       height="250"
                       style={{ border: 0 }}

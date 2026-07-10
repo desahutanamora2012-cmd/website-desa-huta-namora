@@ -15,7 +15,35 @@ import {
   Navigation,
   Ruler,
   RotateCcw,
+  Map,
 } from "lucide-react";
+
+function getGoogleMapsEmbedUrl(input: string, fallbackQuery: string): string {
+  if (!input) return "";
+  if (input.includes("<iframe")) {
+    const match = input.match(/src="([^"]+)"/);
+    return match ? match[1] : "";
+  }
+  if (input.includes("/embed") || input.includes("output=embed")) {
+    return input;
+  }
+  
+  let query = input;
+  if (input.startsWith("http")) {
+    const placeMatch = input.match(/\/place\/([^/]+)/);
+    if (placeMatch) {
+      query = decodeURIComponent(placeMatch[1].replace(/\+/g, " "));
+    } else {
+      const coordMatch = input.match(/@(-?\d+\.\d+),(-?\d+\.\d+)/);
+      if (coordMatch) {
+        query = `${coordMatch[1]},${coordMatch[2]}`;
+      } else {
+        query = fallbackQuery;
+      }
+    }
+  }
+  return `https://maps.google.com/maps?q=${encodeURIComponent(query)}&t=&z=15&ie=UTF8&iwloc=&output=embed`;
+}
 
 function safeParseJson<T = any>(raw: string, fallback: T): T {
   try {
@@ -374,16 +402,29 @@ export default function GeografisPage() {
                 <div className="mt-6">
                   {/* Map / Google Maps embed */}
                   {googleMapsEmbed ? (
-                    <div className="rounded-lg overflow-hidden border bg-white">
-                      <div
-                        className="w-full"
-                        dangerouslySetInnerHTML={{ __html: googleMapsEmbed }}
+                    <div className="rounded-xl overflow-hidden border border-emerald-100 bg-white shadow-sm hover:shadow-md transition-shadow">
+                      <div className="bg-emerald-50 px-4 py-2 border-b border-emerald-100 flex items-center gap-2">
+                        <Map className="w-4 h-4 text-emerald-700" />
+                        <span className="text-sm font-semibold text-emerald-900">Peta Interaktif</span>
+                      </div>
+                      <iframe
+                        src={getGoogleMapsEmbedUrl(googleMapsEmbed, `Kantor Desa ${namaDesa}, ${kecamatan}, ${kabupaten}`)}
+                        width="100%"
+                        height="300"
+                        style={{ border: 0 }}
+                        allowFullScreen
+                        loading="lazy"
+                        referrerPolicy="no-referrer-when-downgrade"
+                        title={`Peta ${namaDesa}`}
                       />
                     </div>
                   ) : (
-                    <p className="text-sm text-gray-500">
-                      Google Maps belum tersedia.
-                    </p>
+                    <div className="bg-gray-50 rounded-xl p-6 text-center border border-dashed border-gray-200">
+                      <Map className="w-8 h-8 text-gray-400 mx-auto mb-2" />
+                      <p className="text-sm text-gray-500 font-medium">
+                        Peta lokasi belum ditambahkan.
+                      </p>
+                    </div>
                   )}
                 </div>
               </div>

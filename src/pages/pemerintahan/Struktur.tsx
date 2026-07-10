@@ -45,17 +45,6 @@ export default function StrukturPage() {
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-        {/* Help Tip */}
-        <div className="mb-6 flex items-center justify-between p-4 bg-white border border-slate-100 shadow-sm rounded-2xl">
-          <div>
-            <h3 className="text-xs font-bold text-slate-800 uppercase tracking-wider">Petunjuk Bagan SOTK</h3>
-            <p className="text-xs text-slate-500 mt-1">Garis mengalir dari Kepala Desa menunjukkan jalur delegasi atasan ke bawahan langsung.</p>
-          </div>
-          <div className="text-[11px] text-slate-400 font-medium hidden sm:block">
-            Bagan menyesuaikan otomatis dengan lebar layar
-          </div>
-        </div>
-
         {/* Chart View */}
         {jabatanSotkList && jabatanSotkList.length > 0 ? (
           <div className="bg-white border border-slate-100 shadow-md rounded-3xl overflow-hidden p-6 relative bg-slate-50/50">

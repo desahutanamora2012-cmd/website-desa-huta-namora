@@ -46475,6 +46475,8 @@ var galeri = mysqlTable("galeri", {
   id: serial("id").primaryKey(),
   judul: varchar("judul", { length: 255 }).notNull(),
   gambarUrl: text("gambar_url").notNull(),
+  fotoUrls: json2("foto_urls").$type().default([]),
+  // Multiple photos
   kategori: mysqlEnum("kategori", [
     "kegiatan",
     "infraastruktur",
@@ -46536,6 +46538,7 @@ var pengaduan = mysqlTable("pengaduan", {
 var apbdes = mysqlTable("apbdes", {
   id: serial("id").primaryKey(),
   tahun: int2("tahun").notNull(),
+  judul: varchar("judul", { length: 255 }),
   pendapatanTotal: decimal("pendapatan_total", { precision: 15, scale: 2 }).default("0"),
   belanjaTotal: decimal("belanja_total", { precision: 15, scale: 2 }).default("0"),
   pembiayaanTotal: decimal("pembiayaan_total", { precision: 15, scale: 2 }).default("0"),
@@ -46645,6 +46648,7 @@ var dusunSotk = mysqlTable("dusun_sotk", {
 });
 var pariwisata = mysqlTable("pariwisata", {
   id: serial("id").primaryKey(),
+  kategori: mysqlEnum("kategori", ["penginapan", "objek_wisata"]).default("penginapan").notNull(),
   namaPenginapan: varchar("nama_penginapan", { length: 255 }).notNull(),
   alamat: text("alamat").notNull(),
   latitude: decimal("latitude", { precision: 10, scale: 8 }),
@@ -46756,7 +46760,10 @@ var ekonomi = mysqlTable("ekonomi", {
     "industri_kecil",
     "pertanian",
     "perternakan",
-    "perikanan"
+    "perikanan",
+    "rumah_makan",
+    "warung_makan",
+    "restoran"
   ]).notNull(),
   alamat: text("alamat").notNull(),
   latitude: decimal("latitude", { precision: 10, scale: 8 }),
@@ -47136,7 +47143,7 @@ var instance;
 function getDb() {
   if (!instance) {
     instance = drizzle(env.databaseUrl, {
-      mode: "planetscale",
+      mode: "default",
       schema: fullSchema
     });
   }
@@ -47537,6 +47544,7 @@ var galeriRouter = createRouter({
     external_exports.object({
       judul: external_exports.string(),
       gambarUrl: external_exports.string(),
+      fotoUrls: external_exports.array(external_exports.string()).optional(),
       kategori: external_exports.enum([
         "kegiatan",
         "infraastruktur",
@@ -47562,6 +47570,7 @@ var galeriRouter = createRouter({
       id: external_exports.number(),
       judul: external_exports.string().optional(),
       gambarUrl: external_exports.string().optional(),
+      fotoUrls: external_exports.array(external_exports.string()).optional(),
       kategori: external_exports.enum([
         "kegiatan",
         "infraastruktur",
@@ -47745,6 +47754,7 @@ var apbdesRouter = createRouter({
   create: adminQuery.input(
     external_exports.object({
       tahun: external_exports.number(),
+      judul: external_exports.string().optional(),
       pendapatanTotal: external_exports.union([external_exports.string(), external_exports.number()]).optional(),
       belanjaTotal: external_exports.union([external_exports.string(), external_exports.number()]).optional(),
       pembiayaanTotal: external_exports.union([external_exports.string(), external_exports.number()]).optional(),
@@ -47767,6 +47777,7 @@ var apbdesRouter = createRouter({
     external_exports.object({
       id: external_exports.number(),
       tahun: external_exports.number().optional(),
+      judul: external_exports.string().optional(),
       pendapatanTotal: external_exports.union([external_exports.string(), external_exports.number()]).optional(),
       belanjaTotal: external_exports.union([external_exports.string(), external_exports.number()]).optional(),
       pembiayaanTotal: external_exports.union([external_exports.string(), external_exports.number()]).optional(),
@@ -48074,6 +48085,7 @@ var pariwisataRouter = createRouter({
   }),
   create: adminQuery.input(
     external_exports.object({
+      kategori: external_exports.enum(["penginapan", "objek_wisata"]).optional(),
       namaPenginapan: external_exports.string(),
       alamat: external_exports.string(),
       latitude: external_exports.number().optional(),
@@ -48103,6 +48115,7 @@ var pariwisataRouter = createRouter({
   update: adminQuery.input(
     external_exports.object({
       id: external_exports.number(),
+      kategori: external_exports.enum(["penginapan", "objek_wisata"]).optional(),
       namaPenginapan: external_exports.string().optional(),
       alamat: external_exports.string().optional(),
       latitude: external_exports.number().optional(),
@@ -48388,7 +48401,10 @@ var ekonomiRouter = createRouter({
         "industri_kecil",
         "pertanian",
         "perternakan",
-        "perikanan"
+        "perikanan",
+        "rumah_makan",
+        "warung_makan",
+        "restoran"
       ]),
       alamat: external_exports.string(),
       latitude: external_exports.number().optional(),
@@ -48428,7 +48444,10 @@ var ekonomiRouter = createRouter({
         "industri_kecil",
         "pertanian",
         "perternakan",
-        "perikanan"
+        "perikanan",
+        "rumah_makan",
+        "warung_makan",
+        "restoran"
       ]).optional(),
       alamat: external_exports.string().optional(),
       latitude: external_exports.number().optional(),

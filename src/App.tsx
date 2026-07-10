@@ -17,6 +17,7 @@ import DokumenPage from "./pages/layanan/Dokumen";
 import MandiriPage from "./pages/layanan/Mandiri";
 import ApbdesPage from "./pages/transparansi/Apbdes";
 import GaleriPage from "./pages/transparansi/Galeri";
+import InfografisPage from "./pages/transparansi/Infografis";
 import KomoditasPage from "./pages/potensi/Komoditas";
 import UmkmPage from "./pages/potensi/Umkm";
 import PariwisataPage from "./pages/potensi/Pariwisata";
@@ -52,7 +53,7 @@ import AdminEkonomi from "./pages/admin/Ekonomi";
 // Auth Pages
 import Login from "./pages/Login";
 import ResetPassword from "./pages/ResetPassword";
-import NotFound from "./pages/NotFound";
+import NotFoundPage from "./pages/NotFound";
 
 export default function App() {
   // Set dynamic page title and favicon based on desa settings
@@ -84,11 +85,13 @@ export default function App() {
         {/* Transparansi */}
         <Route path="/transparansi/apbdes" element={<ApbdesPage />} />
         <Route path="/transparansi/galeri" element={<GaleriPage />} />
+        <Route path="/transparansi/infografis" element={<InfografisPage />} />
         
         {/* Potensi Desa */}
         <Route path="/potensi/komoditas" element={<KomoditasPage />} />
         <Route path="/potensi/umkm" element={<UmkmPage />} />
-          <Route path="/potensi/pariwisata" element={<PariwisataPage />} />
+          <Route path="/potensi/penginapan" element={<PariwisataPage type="penginapan" />} />
+          <Route path="/potensi/objek-wisata" element={<PariwisataPage type="objek_wisata" />} />
           <Route path="/potensi/pendidikan" element={<PendidikanPage />} />
           <Route path="/potensi/kesehatan" element={<KesehatanPage />} />
           <Route path="/potensi/ekonomi" element={<EkonomiPage />} />
@@ -125,7 +128,7 @@ export default function App() {
         <Route path="/admin/sotk" element={<AdminSotk />} />
         
         {/* 404 */}
-        <Route path="*" element={<NotFound />} />
+        <Route path="*" element={<NotFoundPage />} />
       </Routes>
       <Toaster position="top-right" />
     </>

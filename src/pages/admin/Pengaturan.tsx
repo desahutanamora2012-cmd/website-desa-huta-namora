@@ -49,6 +49,7 @@ import {
   MapPin,
   Users,
   Zap,
+  Globe,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -194,26 +195,45 @@ export default function AdminPengaturan() {
         utils.desa.profil.list.invalidate(),
         refetchProfil(),
       ]);
-      toast.success("Logo berhasil diperbarui!");
+      
+      const vars = variables as Record<string, string>;
+      if (vars.layanan_mandiri_url !== undefined) {
+        toast.success("Link berhasil disimpan atau diperbarui!");
+      } else {
+        toast.success("Logo berhasil diperbarui!");
+      }
     },
-    onError: () => toast.error("Gagal memperbarui logo"),
+    onError: (_error, variables) => {
+      const vars = variables as Record<string, string>;
+      if (vars.layanan_mandiri_url !== undefined) {
+        toast.error("Gagal menyimpan link");
+      } else {
+        toast.error("Gagal memperbarui logo");
+      }
+    },
   });
 
   const footerLogoUrlExisting = profilData?.footer_logo_url ?? "";
   const navbarLogoUrlExisting = profilData?.logo_url ?? "";
+  const layananUrlExisting = profilData?.layanan_mandiri_url ?? "";
+  const headerBgExisting = profilData?.header_submenu_bg ?? "from-emerald-700 to-teal-700";
 
   const [profilForm, setProfilForm] = useState({
     logoUrl: navbarLogoUrlExisting,
     footerLogoUrl: footerLogoUrlExisting,
+    layananUrl: layananUrlExisting,
+    headerBg: headerBgExisting,
   });
 
   useEffect(() => {
     setProfilForm({
       logoUrl: navbarLogoUrlExisting,
       footerLogoUrl: footerLogoUrlExisting,
+      layananUrl: layananUrlExisting,
+      headerBg: headerBgExisting,
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [navbarLogoUrlExisting, footerLogoUrlExisting]);
+  }, [navbarLogoUrlExisting, footerLogoUrlExisting, layananUrlExisting, headerBgExisting]);
 
   const handleProfilSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -221,6 +241,13 @@ export default function AdminPengaturan() {
     updateProfil.mutate({
       logo_url: profilForm.logoUrl || "",
       footer_logo_url: profilForm.footerLogoUrl || "",
+    } as any);
+  };
+
+  const handleLayananSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    updateProfil.mutate({
+      layanan_mandiri_url: profilForm.layananUrl || "",
     } as any);
   };
 
@@ -458,7 +485,7 @@ export default function AdminPengaturan() {
         </div>
 
         <Tabs defaultValue="tema" className="space-y-6">
-          <TabsList>
+          <TabsList className="flex flex-wrap h-auto">
             <TabsTrigger value="tema">
               <Palette className="w-4 h-4 mr-2" />
               Tema
@@ -474,6 +501,10 @@ export default function AdminPengaturan() {
             <TabsTrigger value="running-text">
               <Zap className="w-4 h-4 mr-2" />
               Running Text
+            </TabsTrigger>
+            <TabsTrigger value="layanan-mandiri">
+              <Globe className="w-4 h-4 mr-2" />
+              Layanan Mandiri
             </TabsTrigger>
           </TabsList>
 
@@ -634,6 +665,42 @@ export default function AdminPengaturan() {
                           <SelectItem value="full">Penuh</SelectItem>
                         </SelectContent>
                       </Select>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Header Submenu Custom</CardTitle>
+                    <CardDescription>Atur warna atau class gradient (Tailwind) untuk background judul halaman</CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div>
+                      <Label>Warna Background (Contoh: #047857 atau from-blue-700 to-indigo-700)</Label>
+                      <div className="flex gap-2 mt-2">
+                        {profilForm.headerBg.startsWith('#') && (
+                          <Input 
+                            type="color" 
+                            value={profilForm.headerBg} 
+                            onChange={(e) => setProfilForm({ ...profilForm, headerBg: e.target.value })} 
+                            className="w-12 h-10" 
+                          />
+                        )}
+                        <Input 
+                          type="text" 
+                          value={profilForm.headerBg} 
+                          onChange={(e) => setProfilForm({ ...profilForm, headerBg: e.target.value })} 
+                          className="flex-1" 
+                        />
+                      </div>
+                      <Button
+                        type="button"
+                        onClick={() => updateProfil.mutate({ header_submenu_bg: profilForm.headerBg } as any)}
+                        disabled={updateProfil.isPending}
+                        className="bg-emerald-700 hover:bg-emerald-800 mt-4"
+                      >
+                        {updateProfil.isPending ? "Menyimpan..." : "Simpan Header Submenu"}
+                      </Button>
                     </div>
                   </CardContent>
                 </Card>
@@ -1072,6 +1139,35 @@ export default function AdminPengaturan() {
                 )}
               </>
             )}
+          </TabsContent>
+
+          {/* LAYANAN MANDIRI */}
+          <TabsContent value="layanan-mandiri" className="space-y-6">
+            <form onSubmit={handleLayananSubmit} className="space-y-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Layanan Mandiri Masyarakat</CardTitle>
+                  <CardDescription>Atur link eksternal menuju platform layanan mandiri masyarakat</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div>
+                    <Label>URL Layanan Mandiri</Label>
+                    <Input
+                      type="url"
+                      placeholder="Contoh: https://layanan.desa.id"
+                      value={profilForm.layananUrl}
+                      onChange={(e) => setProfilForm({ ...profilForm, layananUrl: e.target.value })}
+                      className="mt-2"
+                    />
+                    <p className="text-xs text-gray-500 mt-2">Link ini akan digunakan pada tombol "Buka Layanan Mandiri" di halaman Layanan Publik.</p>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Button type="submit" disabled={updateProfil.isPending} className="bg-emerald-700 hover:bg-emerald-800 w-full">
+                {updateProfil.isPending ? "Menyimpan..." : "Simpan Perubahan Link"}
+              </Button>
+            </form>
           </TabsContent>
         </Tabs>
       </div>

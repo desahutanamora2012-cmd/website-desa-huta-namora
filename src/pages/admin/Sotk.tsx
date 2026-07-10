@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { trpc } from "@/providers/trpc";
 import AdminLayout from "@/components/AdminLayout";
 import { Button } from "@/components/ui/button";
@@ -263,6 +263,29 @@ export default function AdminSotkPage() {
     return "Level 2";
   };
 
+  // SOTK BPD State
+  const { data: bpdImageUrl, isLoading: bpdLoading } = trpc.desa.profil.getByKey.useQuery({ kunci: "sotk_bpd_image_url" });
+  const [bpdImage, setBpdImage] = useState("");
+  
+  useEffect(() => {
+    if (bpdImageUrl) setBpdImage(bpdImageUrl);
+  }, [bpdImageUrl]);
+
+  const setProfil = trpc.desa.profil.set.useMutation({
+    onSuccess: () => {
+      utils.desa.profil.getByKey.invalidate({ kunci: "sotk_bpd_image_url" });
+      toast.success("Gambar SOTK BPD berhasil disimpan!");
+    },
+    onError: (error: any) => {
+      toast.error(error?.message || "Gagal menyimpan gambar SOTK BPD");
+    },
+  });
+
+  const handleSaveBpd = (e: React.FormEvent) => {
+    e.preventDefault();
+    setProfil.mutate({ kunci: "sotk_bpd_image_url", nilai: bpdImage });
+  };
+
   return (
     <AdminLayout>
       <div className="space-y-6">
@@ -278,14 +301,18 @@ export default function AdminSotkPage() {
 
         {/* Tabs */}
         <Tabs defaultValue="jabatan" className="w-full">
-          <TabsList className="grid w-full grid-cols-2">
+          <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="jabatan" className="flex items-center gap-2">
               <Users className="w-4 h-4" />
-              Jabatan (Struktur)
+              SOTK {labels.statusDesa === "kelurahan" ? "Kelurahan" : "Desa"}
+            </TabsTrigger>
+            <TabsTrigger value="bpd" className="flex items-center gap-2">
+              <Users className="w-4 h-4" />
+              SOTK BPD
             </TabsTrigger>
             <TabsTrigger value="dusun" className="flex items-center gap-2">
               <MapPin className="w-4 h-4" />
-              Dusun/Lingkungan
+              {labels.namaWilayah}
             </TabsTrigger>
           </TabsList>
 
@@ -304,7 +331,7 @@ export default function AdminSotkPage() {
                     Tambah Jabatan
                   </Button>
                 </DialogTrigger>
-                <DialogContent className="max-w-md">
+                <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
                   <DialogHeader>
                     <DialogTitle>
                       {editingJabatanId ? "Edit Jabatan" : "Tambah Jabatan"}
@@ -574,7 +601,7 @@ export default function AdminSotkPage() {
                     Tambah {labels.namaWilayah}
                   </Button>
                 </DialogTrigger>
-                <DialogContent className="max-w-md">
+                <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
                   <DialogHeader>
                     <DialogTitle>
                       {editingDusunId
@@ -767,6 +794,56 @@ export default function AdminSotkPage() {
                 </Card>
               )}
             </div>
+          </TabsContent>
+
+          {/* TAB: SOTK BPD */}
+          <TabsContent value="bpd" className="space-y-4">
+            <Card>
+              <CardHeader>
+                <CardTitle>Bagan SOTK BPD (Badan Permusyawaratan Desa)</CardTitle>
+              </CardHeader>
+              <CardContent>
+                {bpdLoading ? (
+                  <div className="flex justify-center p-8">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-700" />
+                  </div>
+                ) : (
+                  <form onSubmit={handleSaveBpd} className="space-y-6 max-w-2xl">
+                    <div>
+                      <label className="text-sm font-medium text-gray-700 block mb-2">
+                        URL Gambar Struktur SOTK BPD
+                      </label>
+                      <Input
+                        value={bpdImage}
+                        onChange={(e) => setBpdImage(e.target.value)}
+                        placeholder="Contoh: https://ik.imagekit.io/.../sotk-bpd.jpg"
+                        className="w-full"
+                      />
+                      <p className="text-xs text-gray-500 mt-2">
+                        Masukkan tautan URL gambar struktur organisasi BPD Anda.
+                      </p>
+                    </div>
+
+                    {bpdImage && (
+                      <div className="mt-4 rounded-xl overflow-hidden border border-gray-200 bg-gray-50 p-2">
+                        <img
+                          src={bpdImage}
+                          alt="Preview SOTK BPD"
+                          className="w-full object-contain max-h-[500px] rounded-lg"
+                        />
+                      </div>
+                    )}
+
+                    <Button
+                      type="submit"
+                      disabled={setProfil.isPending}
+                    >
+                      {setProfil.isPending ? "Menyimpan..." : "Simpan Gambar SOTK BPD"}
+                    </Button>
+                  </form>
+                )}
+              </CardContent>
+            </Card>
           </TabsContent>
         </Tabs>
       </div>

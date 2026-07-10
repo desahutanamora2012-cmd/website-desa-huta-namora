@@ -17,10 +17,10 @@ import {
 import { useState } from "react";
 import { Link } from "react-router";
 import { Input } from "@/components/ui/input";
+import SubmenuHeader from "@/components/SubmenuHeader";
 
 const kategoriConfig: Record<string, { label: string; icon: typeof FileText }> = {
   semua: { label: "Semua", icon: Newspaper },
-  kabar_desa: { label: "Kabar Desa", icon: Radio },
   pengumuman: { label: "Pengumuman", icon: Megaphone },
   berita: { label: "Berita", icon: FileText },
 };
@@ -53,14 +53,10 @@ export default function BeritaPage() {
 
   return (
     <Layout>
-      <div className="bg-gradient-to-br from-emerald-700 to-teal-700 text-white py-12">
-        <div className="max-w-7xl mx-auto px-4">
-          <h1 className="text-3xl font-bold">Publikasi & Berita</h1>
-          <p className="text-emerald-100 mt-2">
-            Kabar terbaru, pengumuman, dan informasi desa
-          </p>
-        </div>
-      </div>
+      <SubmenuHeader 
+        title="Publikasi & Berita" 
+        subtitle="Kabar terbaru, pengumuman, dan informasi desa" 
+      />
 
       <div className="max-w-7xl mx-auto px-4 py-10 space-y-8">
         {/* Search */}

@@ -51,7 +51,9 @@ export default function KesehatanPage() {
     }
 
     if (filterJenis) {
-      result = result.filter((item) => item.jenis === filterJenis);
+      result = result.filter(
+        (item) => item.jenis?.trim().toLowerCase() === filterJenis.trim().toLowerCase()
+      );
     }
 
     return result;
@@ -59,20 +61,18 @@ export default function KesehatanPage() {
 
   const jenisOptions = useMemo(() => {
     if (!kesehatanList) return [];
-    const jenis = new Set(kesehatanList.map((item) => item.jenis));
-    return Array.from(jenis).sort();
+    const jenis = new Set(kesehatanList.map((item) => item.jenis?.trim()));
+    return Array.from(jenis).filter(Boolean).sort();
   }, [kesehatanList]);
 
   return (
     <Layout>
       {/* Hero Section */}
-      <div className="bg-gradient-to-br from-red-700 via-pink-600 to-red-600 text-white py-16">
+      <div className="bg-gradient-to-br from-red-700 via-pink-600 to-red-600 text-white py-8">
         <div className="max-w-7xl mx-auto px-4">
-          <h1 className="text-4xl md:text-5xl font-bold mb-4">Kesehatan</h1>
-          <p className="text-red-100 text-lg max-w-2xl">
-            Akses mudah ke berbagai sarana kesehatan di desa kami. Kami
-            berkomitmen menjaga kesehatan masyarakat dengan fasilitas medis
-            yang tersedia dan professional kesehatan yang berpengalaman.
+          <h1 className="text-2xl md:text-3xl font-bold mb-2">Kesehatan</h1>
+          <p className="text-red-100 text-sm md:text-base max-w-3xl">
+            Temukan informasi mengenai berbagai sarana kesehatan di desa, termasuk fasilitas pelayanan kesehatan, lokasi, dan informasi pendukung lainnya untuk memenuhi kebutuhan masyarakat.
           </p>
         </div>
       </div>
@@ -91,7 +91,11 @@ export default function KesehatanPage() {
           {/* Filter Buttons */}
           <div className="flex flex-wrap gap-2">
             <button
-              onClick={() => setFilterJenis(null)}
+              type="button"
+              onClick={(e) => {
+                e.preventDefault();
+                setFilterJenis(null);
+              }}
               className={`px-4 py-2 rounded-full text-sm font-semibold transition ${
                 filterJenis === null
                   ? "bg-red-700 text-white"
@@ -103,14 +107,18 @@ export default function KesehatanPage() {
             {jenisOptions.map((jenis) => (
               <button
                 key={jenis}
-                onClick={() => setFilterJenis(jenis)}
+                type="button"
+                onClick={(e) => {
+                  e.preventDefault();
+                  setFilterJenis(jenis);
+                }}
                 className={`px-4 py-2 rounded-full text-sm font-semibold transition ${
                   filterJenis === jenis
                     ? "bg-red-700 text-white"
                     : "bg-gray-200 text-gray-700 hover:bg-gray-300"
                 }`}
               >
-                {jenisLabels[jenis] || jenis}
+                {jenisLabels[jenis.toLowerCase()] || jenis}
               </button>
             ))}
           </div>

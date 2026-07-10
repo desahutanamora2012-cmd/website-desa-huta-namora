@@ -19,6 +19,8 @@ import {
   ThermometerSun,
   Droplets,
   Wind,
+  Plus,
+  Trash2,
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
@@ -118,6 +120,8 @@ export default function AdminProfil() {
     lastUpdated?: string;
   }>({ loading: false });
 
+  const [medsosList, setMedsosList] = useState<{platform: string, url: string}[]>([]);
+
   const [manualLat, setManualLat] = useState<string>("");
   const [manualLon, setManualLon] = useState<string>("");
 
@@ -132,6 +136,14 @@ export default function AdminProfil() {
 
     setManualLat(lat !== undefined ? String(lat) : "");
     setManualLon(lon !== undefined ? String(lon) : "");
+
+    const parsedMedsos = safeParseJson<Record<string, string>>(profil.medsos || "{}", {});
+    setMedsosList(
+      Object.entries(parsedMedsos).map(([k, v]) => ({
+        platform: k,
+        url: v,
+      }))
+    );
 
     setForm({
       nama_desa: profil.nama_desa || "",
@@ -182,7 +194,7 @@ export default function AdminProfil() {
       window.clearInterval(id);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [manualLat, manualLon, climate.loading]);
+  }, [manualLat, manualLon]); // Removed climate.loading to prevent infinite loop and flickering
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -198,6 +210,15 @@ export default function AdminProfil() {
       Number.isFinite(lon);
 
     const nextForm: Record<string, string> = { ...form };
+
+    // Serialize medsosList back to JSON
+    const medsosObj = medsosList.reduce((acc, curr) => {
+      if (curr.platform && curr.url) {
+        acc[curr.platform.toLowerCase()] = curr.url;
+      }
+      return acc;
+    }, {} as Record<string, string>);
+    nextForm.medsos = JSON.stringify(medsosObj);
 
     if (hasValidLatLon) {
       nextForm.geografis = JSON.stringify({
@@ -443,15 +464,67 @@ export default function AdminProfil() {
               <Card className="border-0 shadow-sm">
                 <CardContent className="p-6 space-y-4">
                   <div>
-                    <Label>Media Sosial (JSON)</Label>
-                    <Textarea
-                      value={form.medsos || "{}"}
-                      onChange={(e) =>
-                        setForm({ ...form, medsos: e.target.value })
-                      }
-                      rows={5}
-                      placeholder='{"facebook": "", "instagram": "", "youtube": ""}'
-                    />
+                    <div className="flex items-center justify-between mb-2">
+                      <Label>Media Sosial</Label>
+                      <Button 
+                        type="button" 
+                        variant="outline" 
+                        size="sm" 
+                        onClick={() => setMedsosList([...medsosList, { platform: "facebook", url: "" }])}
+                      >
+                        <Plus className="w-4 h-4 mr-1" />
+                        Tambah Media Sosial
+                      </Button>
+                    </div>
+                    {medsosList.length === 0 && (
+                      <p className="text-sm text-gray-500 italic py-2">Belum ada media sosial ditambahkan.</p>
+                    )}
+                    <div className="space-y-3">
+                      {medsosList.map((m, idx) => (
+                        <div key={idx} className="flex gap-3 items-center bg-gray-50 p-2 rounded-lg border">
+                          <select 
+                            className="flex h-10 w-1/3 items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                            value={m.platform}
+                            onChange={(e) => {
+                              const newList = [...medsosList];
+                              newList[idx].platform = e.target.value;
+                              setMedsosList(newList);
+                            }}
+                          >
+                            <option value="facebook">Facebook</option>
+                            <option value="instagram">Instagram</option>
+                            <option value="youtube">YouTube</option>
+                            <option value="twitter">X / Twitter</option>
+                            <option value="tiktok">TikTok</option>
+                            <option value="linkedin">LinkedIn</option>
+                            <option value="whatsapp">WhatsApp</option>
+                            <option value="telegram">Telegram</option>
+                            <option value="lainnya">Lainnya</option>
+                          </select>
+                          <Input 
+                            className="flex-1"
+                            placeholder="https://..." 
+                            value={m.url}
+                            onChange={(e) => {
+                              const newList = [...medsosList];
+                              newList[idx].url = e.target.value;
+                              setMedsosList(newList);
+                            }}
+                          />
+                          <Button 
+                            type="button" 
+                            variant="ghost" 
+                            size="icon"
+                            className="text-red-500 hover:text-red-700 hover:bg-red-50"
+                            onClick={() => {
+                              setMedsosList(medsosList.filter((_, i) => i !== idx));
+                            }}
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        </div>
+                      ))}
+                    </div>
                   </div>
                   <div>
                     <Label>Footer Teks BPS</Label>
@@ -617,7 +690,7 @@ export default function AdminProfil() {
                   </div>
 
                   <div>
-                    <Label>Google Maps Embed URL</Label>
+                    <Label>Link Google Maps Kantor Desa</Label>
                     <Textarea
                       value={form.google_maps_embed || ""}
                       onChange={(e) =>
@@ -627,7 +700,11 @@ export default function AdminProfil() {
                         })
                       }
                       rows={3}
+                      placeholder="Masukkan URL / Link Google Maps"
                     />
+                    <p className="text-xs text-gray-500 mt-1">
+                      Salin link dari Google Maps (misal: https://maps.app.goo.gl/... atau link embed)
+                    </p>
                   </div>
 
                   <div>
