@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
 import { trpc } from "@/providers/trpc";
+import { parseGoogleDriveUrl } from "@/lib/utils";
 
 export default function BackgroundCarousel() {
   const { data: temaWebsite } = trpc.desa.tema.temaWebsite.list.useQuery();
 
   const tema = Array.isArray(temaWebsite) ? temaWebsite[0] : temaWebsite;
-
 
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
@@ -13,7 +13,9 @@ export default function BackgroundCarousel() {
     tema?.backgroundImage1,
     tema?.backgroundImage2,
     tema?.backgroundImage3,
-  ].filter(Boolean);
+  ]
+    .filter(Boolean)
+    .map((url) => parseGoogleDriveUrl(url as string));
 
   const animationSpeed = tema?.backgroundAnimationSpeed || 5;
 

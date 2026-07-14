@@ -598,7 +598,7 @@ export default function AdminPengaturan() {
                           type="text"
                           placeholder="URL gambar background"
                           value={(temaForm as any)[`backgroundImage${num}`] || ""}
-                          onChange={(e) => setTemaForm({ ...temaForm, [`backgroundImage${num}`]: e.target.value } as any)}
+                          onChange={(e) => setTemaForm({ ...temaForm, [`backgroundImage${num}`]: parseGoogleDriveUrl(e.target.value) } as any)}
                           className="mt-2"
                         />
                       </div>
