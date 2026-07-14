@@ -17,7 +17,7 @@
   "crons": [
     {
       "path": "/api/trpc/desa.pariwisata.list",
-      "schedule": "0 0 * * *"
+      "schedule": "0 * * * *"
     }
   ]
 }
