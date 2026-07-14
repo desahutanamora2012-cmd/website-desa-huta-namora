@@ -47138,11 +47138,16 @@ var env = {
 var relations_exports = {};
 
 // server/queries/connection.ts
+var import_promise = __toESM(require_promise(), 1);
 var fullSchema = { ...schema_exports, ...relations_exports };
 var instance;
 function getDb() {
   if (!instance) {
-    instance = drizzle(env.databaseUrl, {
+    const poolConnection = import_promise.default.createPool({
+      uri: env.databaseUrl,
+      connectTimeout: 5e3
+    });
+    instance = drizzle(poolConnection, {
       mode: "default",
       schema: fullSchema
     });
