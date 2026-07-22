@@ -29,7 +29,7 @@ const menuItems = [
     children: [
       { label: "Sejarah & Visi Misi", path: "/profil/sejarah" },
       { label: "Kondisi Geografis", path: "/profil/geografis" },
-      { label: "Demografi Penduduk", path: "/profil/demografi" },
+      { label: "Statistik Desa", path: "/profil/statistik" },
     ],
   },
   {

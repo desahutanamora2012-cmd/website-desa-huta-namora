@@ -182,6 +182,9 @@ const statistikRouter = createRouter({
         dataPendidikan: z.any().optional(),
         dataAngkatanKerja: z.any().optional(),
         dataUsia: z.any().optional(),
+        infrastrukturPendidikan: z.any().optional(),
+        infrastrukturKesehatan: z.any().optional(),
+        infrastrukturEkonomi: z.any().optional(),
       })
     )
     .mutation(async ({ input }) => {
@@ -205,6 +208,9 @@ const statistikRouter = createRouter({
         dataPendidikan: z.any().optional(),
         dataAngkatanKerja: z.any().optional(),
         dataUsia: z.any().optional(),
+        infrastrukturPendidikan: z.any().optional(),
+        infrastrukturKesehatan: z.any().optional(),
+        infrastrukturEkonomi: z.any().optional(),
       })
     )
     .mutation(async ({ input }) => {

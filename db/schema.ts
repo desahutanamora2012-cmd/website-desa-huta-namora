@@ -91,6 +91,49 @@ export const statistikDesa = mysqlTable("statistik_desa", {
     range60_64: number;
     range65_plus: number;
   }>(),
+  infrastrukturPendidikan: json("infrastruktur_pendidikan").$type<{
+    tahun?: number;
+    tk: number;
+    ra_ba: number;
+    sd: number;
+    mi: number;
+    smp: number;
+    mts: number;
+    sma: number;
+    ma: number;
+    smk: number;
+    perguruanTinggi: number;
+  }>(),
+  infrastrukturKesehatan: json("infrastruktur_kesehatan").$type<{
+    tahun?: number;
+    rumahSakit: number;
+    klinikUtama: number;
+    balaiKesehatan: number;
+    puskesmasInap: number;
+    puskesmasNonInap: number;
+    puskesmasPembantu: number;
+    klinikPratama: number;
+    praktikDokter: number;
+    praktikBidan: number;
+    poskesdes: number;
+    polindes: number;
+    apotek: number;
+    tokoObat: number;
+    posyandu: number;
+  }>(),
+  infrastrukturEkonomi: json("infrastruktur_ekonomi").$type<{
+    tahun?: number;
+    pertokoan: number;
+    pasarPermanen: number;
+    pasarSemiPermanen: number;
+    pasarTanpaBangunan: number;
+    minimarket: number;
+    restoran: number;
+    warungMakanan: number;
+    hotel: number;
+    penginapan: number;
+    tokoKelontong: number;
+  }>(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt")
     .defaultNow()

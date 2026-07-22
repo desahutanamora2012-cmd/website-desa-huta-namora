@@ -6,7 +6,7 @@ import { useSiteMetadata } from "@/hooks/useSiteMetadata";
 import Home from "./pages/Home";
 import SejarahPage from "./pages/profil/Sejarah";
 import GeografisPage from "./pages/profil/Geografis";
-import DemografiPage from "./pages/profil/Demografi";
+import StatistikPage from "./pages/profil/Statistik";
 import DusunPage from "./pages/profil/Dusun";
 import StrukturPage from "./pages/pemerintahan/Struktur";
 import SotkPage from "./pages/pemerintahan/Sotk";
@@ -68,7 +68,7 @@ export default function App() {
         {/* Profil Desa */}
         <Route path="/profil/sejarah" element={<SejarahPage />} />
         <Route path="/profil/geografis" element={<GeografisPage />} />
-        <Route path="/profil/demografi" element={<DemografiPage />} />
+        <Route path="/profil/statistik" element={<StatistikPage />} />
         <Route path="/profil/dusun" element={<DusunPage />} />
         
         {/* Pemerintahan */}
