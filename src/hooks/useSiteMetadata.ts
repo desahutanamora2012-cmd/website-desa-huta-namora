@@ -7,8 +7,8 @@ import { trpc } from "@/providers/trpc";
  * Favicon: From temaWebsite.faviconUrl or default /favicon.svg
  */
 export function useSiteMetadata() {
-  const { data: profilData } = trpc.desa.profil.list.useQuery();
-  const { data: temaWebsite } = trpc.desa.tema.temaWebsite.list.useQuery();
+  const { data: profilData, isLoading: isLoadingProfil } = trpc.desa.profil.list.useQuery();
+  const { data: temaWebsite, isLoading: isLoadingTema } = trpc.desa.tema.temaWebsite.list.useQuery();
   const temaData = Array.isArray(temaWebsite) ? temaWebsite[0] : temaWebsite;
 
   useEffect(() => {
@@ -66,5 +66,6 @@ export function useSiteMetadata() {
   return {
     namaDesa: profilData?.["nama_desa"],
     faviconUrl: temaData?.faviconUrl,
+    isLoading: isLoadingProfil || isLoadingTema,
   };
 }

@@ -33,3 +33,49 @@ export function parseGoogleDriveUrl(url: string): string {
   }
   return url;
 }
+
+import * as XLSX from "xlsx";
+
+/**
+ * Downloads one or more datasets as an Excel (XLSX) file.
+ * `data` can be a single array of objects, or an object where keys are sheet names and values are arrays of objects.
+ * `title` is added as the first row in each sheet.
+ */
+export function downloadExcel(
+  data: any[] | Record<string, any[]>,
+  filename: string,
+  title?: string
+) {
+  if (!data || (Array.isArray(data) && data.length === 0)) return;
+
+  const workbook = XLSX.utils.book_new();
+
+  const addSheet = (sheetData: any[], sheetName: string, sheetTitle?: string) => {
+    if (!sheetData || sheetData.length === 0) return;
+    
+    // Create worksheet
+    const worksheet = XLSX.utils.json_to_sheet(sheetData, { origin: sheetTitle ? "A2" : "A1" });
+    
+    if (sheetTitle) {
+      // Add Title at A1
+      XLSX.utils.sheet_add_aoa(worksheet, [[sheetTitle]], { origin: "A1" });
+      // Optional: merge cells for the title
+      const numCols = Object.keys(sheetData[0] || {}).length;
+      if (!worksheet["!merges"]) worksheet["!merges"] = [];
+      worksheet["!merges"].push({ s: { r: 0, c: 0 }, e: { r: 0, c: numCols - 1 } });
+    }
+    
+    XLSX.utils.book_append_sheet(workbook, worksheet, sheetName);
+  };
+
+  if (Array.isArray(data)) {
+    addSheet(data, "Data", title);
+  } else {
+    Object.keys(data).forEach((sheetName) => {
+      addSheet(data[sheetName], sheetName, title ? `${title} - ${sheetName}` : undefined);
+    });
+  }
+
+  const finalFilename = filename.endsWith(".xlsx") ? filename : `${filename}.xlsx`;
+  XLSX.writeFile(workbook, finalFilename);
+}

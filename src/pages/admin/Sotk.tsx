@@ -29,7 +29,6 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Plus, Edit2, Trash2, Users, MapPin } from "lucide-react";
 import { toast } from "sonner";
-import { parseGoogleDriveUrl } from "@/lib/utils";
 import { getReplaceDesaTerm, useDesaStatus } from "@/hooks/useDesaStatus";
 import DriveImage from "@/components/DriveImage";
 

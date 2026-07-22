@@ -6,7 +6,7 @@ import { useSiteMetadata } from "@/hooks/useSiteMetadata";
 import Home from "./pages/Home";
 import SejarahPage from "./pages/profil/Sejarah";
 import GeografisPage from "./pages/profil/Geografis";
-import DemografiPage from "./pages/profil/Demografi";
+import StatistikPage from "./pages/profil/Statistik";
 import DusunPage from "./pages/profil/Dusun";
 import StrukturPage from "./pages/pemerintahan/Struktur";
 import SotkPage from "./pages/pemerintahan/Sotk";
@@ -57,7 +57,12 @@ import NotFoundPage from "./pages/NotFound";
 
 export default function App() {
   // Set dynamic page title and favicon based on desa settings
-  useSiteMetadata();
+  const { isLoading } = useSiteMetadata();
+
+  // Show a completely blank layout while core database resources are loading
+  if (isLoading) {
+    return <div className="min-h-screen bg-gray-50/50 flex items-center justify-center"></div>;
+  }
 
   return (
     <>
@@ -68,7 +73,7 @@ export default function App() {
         {/* Profil Desa */}
         <Route path="/profil/sejarah" element={<SejarahPage />} />
         <Route path="/profil/geografis" element={<GeografisPage />} />
-        <Route path="/profil/demografi" element={<DemografiPage />} />
+        <Route path="/profil/statistik" element={<StatistikPage />} />
         <Route path="/profil/dusun" element={<DusunPage />} />
         
         {/* Pemerintahan */}
